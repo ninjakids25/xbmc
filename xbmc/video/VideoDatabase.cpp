@@ -162,7 +162,7 @@ void CVideoDatabase::CreateTables()
 
     columns += column;
   }
-  columns += ", idShow integer, userrating integer, idSeason integer)";
+  columns += ", idShow integer, userrating integer, idSeason integer, idSeasonDvd integer, dvdNumber integer)";
   m_pDS->exec(columns);
 
   CLog::Log(LOGINFO, "create tvshowlinkpath table");
@@ -463,27 +463,27 @@ void CVideoDatabase::CreateViews()
   CLog::Log(LOGINFO, "create movie_view");
   
   std::string movieview = PrepareSQL("CREATE VIEW movie_view AS SELECT"
-                                      "  movie.*,"
-                                      "  sets.strSet AS strSet,"
-                                      "  sets.strOverview AS strSetOverview,"
-                                      "  files.strFileName AS strFileName,"
-                                      "  path.strPath AS strPath,"
-                                      "  files.playCount AS playCount,"
-                                      "  files.lastPlayed AS lastPlayed, "
-                                      "  files.dateAdded AS dateAdded, "
-                                      "  bookmark.timeInSeconds AS resumeTimeInSeconds, "
+              "  movie.*,"
+              "  sets.strSet AS strSet,"
+              "  sets.strOverview AS strSetOverview,"
+              "  files.strFileName AS strFileName,"
+              "  path.strPath AS strPath,"
+              "  files.playCount AS playCount,"
+              "  files.lastPlayed AS lastPlayed, "
+              "  files.dateAdded AS dateAdded, "
+              "  bookmark.timeInSeconds AS resumeTimeInSeconds, "
                                       "  bookmark.totalTimeInSeconds AS totalTimeInSeconds, "
                                       "  rating.rating AS rating, "
                                       "  rating.votes AS votes, "
                                       "  rating.rating_type AS rating_type "
-                                      "FROM movie"
-                                      "  LEFT JOIN sets ON"
-                                      "    sets.idSet = movie.idSet"
-                                      "  JOIN files ON"
-                                      "    files.idFile=movie.idFile"
-                                      "  JOIN path ON"
-                                      "    path.idPath=files.idPath"
-                                      "  LEFT JOIN bookmark ON"
+              "FROM movie"
+              "  LEFT JOIN sets ON"
+              "    sets.idSet = movie.idSet"
+              "  JOIN files ON"
+              "    files.idFile=movie.idFile"
+              "  JOIN path ON"
+              "    path.idPath=files.idPath"
+              "  LEFT JOIN bookmark ON"
                                       "    bookmark.idFile=movie.idFile AND bookmark.type=1"
                                       "  LEFT JOIN rating ON"
                                       "    rating.rating_id=movie.c%02d",
@@ -901,16 +901,16 @@ void CVideoDatabase::UpdateFileDateAdded(int idFile, const std::string& strFileN
   {
     if (NULL == m_pDB.get()) return;
     if (NULL == m_pDS.get()) return;
-
+     
     if (!finalDateAdded.IsValid())
     {
-      // 1 prefering to use the files mtime(if it's valid) and only using the file's ctime if the mtime isn't valid
-      if (g_advancedSettings.m_iVideoLibraryDateAdded == 1)
+    // 1 prefering to use the files mtime(if it's valid) and only using the file's ctime if the mtime isn't valid
+    if (g_advancedSettings.m_iVideoLibraryDateAdded == 1)
         finalDateAdded = CFileUtils::GetModificationDate(strFileNameAndPath, false);
-      //2 using the newer datetime of the file's mtime and ctime
-      else if (g_advancedSettings.m_iVideoLibraryDateAdded == 2)
+    //2 using the newer datetime of the file's mtime and ctime
+    else if (g_advancedSettings.m_iVideoLibraryDateAdded == 2)
         finalDateAdded = CFileUtils::GetModificationDate(strFileNameAndPath, true);
-      //0 using the current datetime if non of the above matches or one returns an invalid datetime
+    //0 using the current datetime if non of the above matches or one returns an invalid datetime
       if (!finalDateAdded.IsValid())
         finalDateAdded = CDateTime::GetCurrentDateTime();
     }
@@ -3670,7 +3670,7 @@ CVideoInfoTag CVideoDatabase::GetDetailsForMovie(const dbiplus::sql_record* cons
     }
 
     if (getDetails & VideoDbDetailsTag)
-      GetTags(details.m_iDbId, MediaTypeMovie, details.m_tags);
+    GetTags(details.m_iDbId, MediaTypeMovie, details.m_tags);
 
     if (getDetails & VideoDbDetailsRating)
       GetRatings(details.m_iDbId, MediaTypeMovie, details.m_ratings);
@@ -3679,22 +3679,22 @@ CVideoInfoTag CVideoDatabase::GetDetailsForMovie(const dbiplus::sql_record* cons
 
     if (getDetails & VideoDbDetailsShowLink)
     {
-      // create tvshowlink string
-      std::vector<int> links;
-      GetLinksToTvShow(idMovie, links);
-      for (unsigned int i = 0; i < links.size(); ++i)
-      {
-        std::string strSQL = PrepareSQL("select c%02d from tvshow where idShow=%i",
-          VIDEODB_ID_TV_TITLE, links[i]);
-        m_pDS2->query(strSQL);
-        if (!m_pDS2->eof())
-          details.m_showLink.push_back(m_pDS2->fv(0).get_asString());
-      }
-      m_pDS2->close();
+    // create tvshowlink string
+    std::vector<int> links;
+    GetLinksToTvShow(idMovie,links);
+    for (unsigned int i=0;i<links.size();++i)
+    {
+      std::string strSQL = PrepareSQL("select c%02d from tvshow where idShow=%i",
+                         VIDEODB_ID_TV_TITLE,links[i]);
+      m_pDS2->query(strSQL);
+      if (!m_pDS2->eof())
+        details.m_showLink.push_back(m_pDS2->fv(0).get_asString());
+    }
+    m_pDS2->close();
     }
 
     if (getDetails & VideoDbDetailsStream)
-      GetStreamDetails(details);
+    GetStreamDetails(details);
 
     details.m_parsedDetails = getDetails;
   }
@@ -3741,12 +3741,12 @@ CVideoInfoTag CVideoDatabase::GetDetailsForTvShow(const dbiplus::sql_record* con
   {
     if (getDetails & VideoDbDetailsCast)
     {
-      GetCast(details.m_iDbId, "tvshow", details.m_cast);
+    GetCast(details.m_iDbId, "tvshow", details.m_cast);
       castTime += XbmcThreads::SystemClockMillis() - time; time = XbmcThreads::SystemClockMillis();
     }
 
     if (getDetails & VideoDbDetailsTag)
-      GetTags(details.m_iDbId, MediaTypeTvShow, details.m_tags);
+    GetTags(details.m_iDbId, MediaTypeTvShow, details.m_tags);
 
     if (getDetails & VideoDbDetailsRating)
       GetRatings(details.m_iDbId, MediaTypeTvShow, details.m_ratings);
@@ -3810,6 +3810,8 @@ CVideoInfoTag CVideoDatabase::GetDetailsForEpisode(const dbiplus::sql_record* co
   details.AddRating(record->at(VIDEODB_DETAILS_EPISODE_RATING).get_asFloat(),
     record->at(VIDEODB_DETAILS_EPISODE_VOTES).get_asInt(),
     record->at(VIDEODB_DETAILS_EPISODE_RATING_TYPE).get_asString());
+  details.m_iDvdSeasonNumber = record->at(VIDEODB_DETAILS_EPISODE_DVD_SEASON_NUMBER).get_asInt();
+  details.m_iDvdEpisodeNumber = record->at(VIDEODB_DETAILS_EPISODE_DVD_EPISODE_NUMBER).get_asInt();
 
   movieTime += XbmcThreads::SystemClockMillis() - time; time = XbmcThreads::SystemClockMillis();
 
@@ -3826,12 +3828,12 @@ CVideoInfoTag CVideoDatabase::GetDetailsForEpisode(const dbiplus::sql_record* co
       GetRatings(details.m_iDbId, MediaTypeEpisode, details.m_ratings);
 
     details.m_strPictureURL.Parse();
-    
+
     if (getDetails &  VideoDbDetailsBookmark)
       GetBookMarkForEpisode(details, details.m_EpBookmark);
     
     if (getDetails & VideoDbDetailsStream)
-      GetStreamDetails(details);
+    GetStreamDetails(details);
 
     details.m_parsedDetails = getDetails;
   }
@@ -3871,12 +3873,12 @@ CVideoInfoTag CVideoDatabase::GetDetailsForMusicVideo(const dbiplus::sql_record*
   if (getDetails)
   {
     if (getDetails & VideoDbDetailsTag)
-      GetTags(details.m_iDbId, MediaTypeMusicVideo, details.m_tags);
+    GetTags(details.m_iDbId, MediaTypeMusicVideo, details.m_tags);
 
     details.m_strPictureURL.Parse();
 
     if (getDetails & VideoDbDetailsStream)
-      GetStreamDetails(details);
+    GetStreamDetails(details);
 
     details.m_parsedDetails = getDetails;
   }
@@ -4905,11 +4907,16 @@ void CVideoDatabase::UpdateTables(int iVersion)
     m_pDS->exec("ALTER TABLE settings ADD VideoStream integer");
     m_pDS->exec("ALTER TABLE streamdetails ADD strVideoLanguage text");
   }
+  if (iVersion < 104)
+  {
+    m_pDS->exec("ALTER TABLE episode ADD idSeasonDvd INTEGER");
+    m_pDS->exec("ALTER TABLE episode ADD dvdNummber INTEGER");
+  }
 }
 
 int CVideoDatabase::GetSchemaVersion() const
 {
-  return 103;
+  return 104;
 }
 
 bool CVideoDatabase::LookupByFolders(const std::string &path, bool shows)

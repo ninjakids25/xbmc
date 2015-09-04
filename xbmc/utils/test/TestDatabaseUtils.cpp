@@ -1318,6 +1318,14 @@ TEST(TestDatabaseUtils, GetFieldIndex_MediaTypeEpisode)
   varindex = DatabaseUtils::GetFieldIndex(FieldRating, MediaTypeEpisode);
   EXPECT_EQ(refindex, varindex);
 
+  refindex = VIDEODB_DETAILS_EPISODE_DVD_SEASON_NUMBEr;
+  varindex = DatabaseUtils::GetFieldIndex(FieldDvdSeason, MediaTypeEpisode);
+  EXPECT_EQ(refindex, varindex);
+
+  refindex = VIDEODB_DETAILS_EPISODE_DVD_EPISODE_ORDER;
+  varindex = DatabaseUtils::GetFieldIndex(FieldDvdEpisode, MediaTypeEpisode);
+  EXPECT_EQ(refindex, varindex);
+
   refindex = -1;
   varindex = DatabaseUtils::GetFieldIndex(FieldRandom, MediaTypeEpisode);
   EXPECT_EQ(refindex, varindex);

@@ -14115,7 +14115,7 @@ msgstr ""
 #. Header string on RDS Radiotext+ Info dialog
 #: addons/skin.confluence/720p/DialogPVRRadioRDSInfo.xml
 msgctxt "#29900"
-msgid "Radiotext Plus info"
+msgid "RadiotextPlus info"
 msgstr ""
 
 #. Music band name which make the song (if present)
@@ -18349,3 +18349,8 @@ msgstr ""
 msgctxt "#38041"
 msgid "Mixer"
 msgstr "" 
+
+#: xbmc/utils/SortUtils.cpp
+msgctxt "#38042"
+msgid "DVD order"
+msgstr ""

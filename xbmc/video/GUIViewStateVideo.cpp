@@ -158,6 +158,7 @@ CGUIViewStateWindowVideoNav::CGUIViewStateWindowVideoNav(const CFileItemList& it
     case NODE_TYPE_SEASONS:
       {
         AddSortMethod(SortBySortTitle, 556, LABEL_MASKS("%L", "","%L",""));  // Label, empty | Label, empty
+        AddSortMethod(SortByDvdSeason, 38042, LABEL_MASKS("%L", "", "%L", ""));  // Label, empty | Label, empty
         SetSortMethod(SortBySortTitle);
 
         const CViewState *viewState = CViewStateSettings::GetInstance().Get("videonavseasons");
@@ -250,6 +251,7 @@ CGUIViewStateWindowVideoNav::CGUIViewStateWindowVideoNav(const CFileItemList& it
             AddSortMethod(SortByPlaycount, 567, LABEL_MASKS("%H. %T", "%V"));  // Order. Title, Playcount | empty, empty
         }
         AddSortMethod(SortByLabel, sortAttributes, 551, LABEL_MASKS("%T","%R"));  // Title, Rating | empty, empty
+        AddSortMethod(SortByDvdEpisode, 38042, LABEL_MASKS("%E. %T", "%R"));  // Label, empty | Label, empty
 
         const CViewState *viewState = CViewStateSettings::GetInstance().Get("videonavepisodes");
         SetSortMethod(viewState->m_sortDescription);

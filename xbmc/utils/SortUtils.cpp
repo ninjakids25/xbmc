@@ -306,6 +306,32 @@ std::string BySeason(SortAttribute attributes, const SortItem &values)
   return StringUtils::Format("%i %s", season, ByLabel(attributes, values).c_str());
 }
 
+std::string ByDvdEpisode(SortAttribute attributes, const SortItem &values)
+{
+  uint64_t num;
+  const CVariant &episodeSpecial = values.at(FieldEpisodeNumberSpecialSort);
+  const CVariant &seasonSpecial = values.at(FieldSeasonSpecialSort);
+  if (!episodeSpecial.isNull() && !seasonSpecial.isNull() &&
+    (episodeSpecial.asInteger() > 0 || seasonSpecial.asInteger() > 0))
+    num = ((uint64_t)seasonSpecial.asInteger() << 32) + (episodeSpecial.asInteger() << 16) - ((2 << 15) - values.at(FieldDvdEpisode).asInteger());
+  else
+    num = ((uint64_t)values.at(FieldDvdSeason).asInteger() << 32) + (values.at(FieldDvdEpisode).asInteger() << 16);
+
+  std::string title = ByLabel(attributes, values);
+
+  return StringUtils::Format("%" PRIu64" %s", num, title.c_str());
+}
+
+std::string ByDvdSeason(SortAttribute attributes, const SortItem &values)
+{
+  int season = (int)values.at(FieldDvdSeason).asInteger();
+  const CVariant &specialSeason = values.at(FieldSeasonSpecialSort);
+  if (!specialSeason.isNull())
+    season = (int)specialSeason.asInteger();
+
+  return StringUtils::Format("%i %s", season, ByLabel(attributes, values).c_str());
+}
+
 std::string ByNumberOfEpisodes(SortAttribute attributes, const SortItem &values)
 {
   return StringUtils::Format("%i %s", (int)values.at(FieldNumberOfEpisodes).asInteger(), ByLabel(attributes, values).c_str());
@@ -571,6 +597,8 @@ std::map<SortBy, SortUtils::SortPreparator> fillPreparators()
   preparators[SortByPlaylistOrder]            = ByPlaylistOrder;
   preparators[SortByEpisodeNumber]            = ByEpisodeNumber;
   preparators[SortBySeason]                   = BySeason;
+  preparators[SortByDvdEpisode]               = ByDvdEpisode;
+  preparators[SortByDvdSeason]                = ByDvdSeason;
   preparators[SortByNumberOfEpisodes]         = ByNumberOfEpisodes;
   preparators[SortByNumberOfWatchedEpisodes]  = ByNumberOfWatchedEpisodes;
   preparators[SortByTvShowStatus]             = ByTvShowStatus;
@@ -650,8 +678,14 @@ std::map<SortBy, Fields> fillSortingFields()
   sortingFields[SortByEpisodeNumber].insert(FieldSeasonSpecialSort);
   sortingFields[SortByEpisodeNumber].insert(FieldTitle);
   sortingFields[SortByEpisodeNumber].insert(FieldSortTitle);
+  sortingFields[SortByDvdEpisode].insert(FieldDvdEpisode);
+  sortingFields[SortByDvdEpisode].insert(FieldDvdSeason);
+  sortingFields[SortByDvdEpisode].insert(FieldEpisodeNumberSpecialSort);
+  sortingFields[SortByDvdEpisode].insert(FieldSeasonSpecialSort);
   sortingFields[SortBySeason].insert(FieldSeason);
   sortingFields[SortBySeason].insert(FieldSeasonSpecialSort);
+  sortingFields[SortByDvdSeason].insert(FieldDvdSeason);
+  sortingFields[SortByDvdSeason].insert(FieldSeasonSpecialSort);
   sortingFields[SortByNumberOfEpisodes].insert(FieldNumberOfEpisodes);
   sortingFields[SortByNumberOfWatchedEpisodes].insert(FieldNumberOfWatchedEpisodes);
   sortingFields[SortByTvShowStatus].insert(FieldTvShowStatus);
@@ -906,6 +940,8 @@ const sort_map table[] = {
   { SortByTvShowTitle,              SORT_METHOD_NONE,                         SortAttributeNone,          20364 },
   { SortByTvShowStatus,             SORT_METHOD_NONE,                         SortAttributeNone,          126 },
   { SortBySeason,                   SORT_METHOD_NONE,                         SortAttributeNone,          20373 },
+  { SortByDvdSeason,                SORT_METHOD_NONE,                         SortAttributeNone,          38042 },
+  { SortByDvdEpisode,               SORT_METHOD_NONE,                         SortAttributeNone,          38042 },
   { SortByNumberOfEpisodes,         SORT_METHOD_NONE,                         SortAttributeNone,          20360 },
   { SortByNumberOfWatchedEpisodes,  SORT_METHOD_NONE,                         SortAttributeNone,          21441 },
   { SortByVideoResolution,          SORT_METHOD_NONE,                         SortAttributeNone,          21443 },
@@ -1010,6 +1046,8 @@ const std::map<std::string, SortBy> sortMethods = {
   { "playlist",         SortByPlaylistOrder },
   { "episode",          SortByEpisodeNumber },
   { "season",           SortBySeason },
+  { "episodeDVD",       SortByDvdEpisode},
+  { "seasonDVD",        SortByDvdSeason },
   { "totalepisodes",    SortByNumberOfEpisodes },
   { "watchedepisodes",  SortByNumberOfWatchedEpisodes },
   { "tvshowstatus",     SortByTvShowStatus },

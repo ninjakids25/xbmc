@@ -69,6 +69,8 @@ void CVideoInfoTag::Reset()
   m_iYear = 0;
   m_iSeason = -1;
   m_iEpisode = -1;
+  m_iDvdSeasonNumber = -1;
+  m_iDvdEpisodeNumber = -1;
   m_strUniqueId.clear();
   m_iSpecialSortSeason = -1;
   m_iSpecialSortEpisode = -1;
@@ -155,6 +157,8 @@ bool CVideoInfoTag::Save(TiXmlNode *node, const std::string &tag, bool savePathI
   {
     XMLUtils::SetInt(movie, "season", m_iSeason);
     XMLUtils::SetInt(movie, "episode", m_iEpisode);
+    XMLUtils::SetInt(movie, "dvdSeasonOrder", m_iDvdSeasonNumber);
+    XMLUtils::SetInt(movie, "dvdEpisodeOrder", m_iDvdEpisodeNumber);
     XMLUtils::SetString(movie, "uniqueid", m_strUniqueId);
     XMLUtils::SetInt(movie, "displayseason",m_iSpecialSortSeason);
     XMLUtils::SetInt(movie, "displayepisode",m_iSpecialSortEpisode);
@@ -358,6 +362,8 @@ void CVideoInfoTag::Archive(CArchive& ar)
     ar << m_iYear;
     ar << m_iSeason;
     ar << m_iEpisode;
+    ar << m_iDvdSeasonNumber;
+    ar << m_iDvdEpisodeNumber;
     ar << m_strUniqueId;
     ar << (int)m_ratings.size();
     for (const auto& i : m_ratings)
@@ -450,6 +456,8 @@ void CVideoInfoTag::Archive(CArchive& ar)
     ar >> m_iYear;
     ar >> m_iSeason;
     ar >> m_iEpisode;
+    ar << m_iDvdSeasonNumber;
+    ar << m_iDvdEpisodeNumber;
     ar >> m_strUniqueId;
     int iRatingSize;
     ar >> iRatingSize;
@@ -552,6 +560,8 @@ void CVideoInfoTag::Serialize(CVariant& value) const
   value["year"] = m_iYear;
   value["season"] = m_iSeason;
   value["episode"] = m_iEpisode;
+  value["dvdseasonorder"] = m_iDvdSeasonNumber;
+  value["dvdepisodeorder"] = m_iDvdEpisodeNumber;
   value["uniqueid"]["unknown"] = m_strUniqueId;
   value["rating"] = GetRating().rating;
   value["ratings"] = CVariant(CVariant::VariantTypeArray);
@@ -638,6 +648,8 @@ void CVideoInfoTag::ToSortable(SortItem& sortable, Field field) const
   case FieldYear:                     sortable[FieldYear] = m_iYear; break;
   case FieldSeason:                   sortable[FieldSeason] = m_iSeason; break;
   case FieldEpisodeNumber:            sortable[FieldEpisodeNumber] = m_iEpisode; break;
+  case FieldDvdSeason:                sortable[FieldDvdSeason] = m_iDvdSeasonNumber; break;
+  case FieldDvdEpisode:               sortable[FieldDvdEpisode] = m_iDvdEpisodeNumber; break;
   case FieldNumberOfEpisodes:         sortable[FieldNumberOfEpisodes] = m_iEpisode; break;
   case FieldNumberOfWatchedEpisodes:  sortable[FieldNumberOfWatchedEpisodes] = m_iEpisode; break;
   case FieldEpisodeNumberSpecialSort: sortable[FieldEpisodeNumberSpecialSort] = m_iSpecialSortEpisode; break;
@@ -767,6 +779,8 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
   XMLUtils::GetInt(movie, "top250", m_iTop250);
   XMLUtils::GetInt(movie, "season", m_iSeason);
   XMLUtils::GetInt(movie, "episode", m_iEpisode);
+  XMLUtils::GetInt(movie, "dvdseasonorder", m_iDvdSeasonNumber);
+  XMLUtils::GetInt(movie, "dvdepisodeorder", m_iDvdEpisodeNumber);
   XMLUtils::GetInt(movie, "track", m_iTrack);
   if (XMLUtils::GetString(movie, "uniqueid", value))
     SetUniqueId(value);

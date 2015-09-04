@@ -239,6 +239,8 @@ std::string DatabaseUtils::GetField(Field field, const MediaType &mediaType, Dat
     else if (field == FieldMPAA) return "episode_view.mpaa";
     else if (field == FieldStudio) return "episode_view.strStudio";
     else if (field == FieldUserRating) return "episode_view.userrating";
+    else if (field == FieldDvdSeason) return "episode_view.idSeasonDvd";
+    else if (field == FieldDvdEpisode) return "episode_view.dvdNummber";
 
     if (!result.empty())
       return result;
@@ -657,6 +659,8 @@ int DatabaseUtils::GetField(Field field, const MediaType &mediaType, bool asInde
     else if (field == FieldYear) return VIDEODB_DETAILS_EPISODE_TVSHOW_AIRED;
     else if (field == FieldMPAA) return VIDEODB_DETAILS_EPISODE_TVSHOW_MPAA;
     else if (field == FieldUserRating) return VIDEODB_DETAILS_EPISODE_USER_RATING;
+    else if (field == FieldDvdSeason) return VIDEODB_DETAILS_EPISODE_DVD_SEASON_NUMBER;
+    else if (field == FieldDvdEpisode) return VIDEODB_DETAILS_EPISODE_DVD_EPISODE_NUMBER;
 
     if (index < 0)
       return index;

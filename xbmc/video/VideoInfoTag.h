@@ -198,6 +198,8 @@ public:
   std::string m_strDefaultRating;
   int m_iUserRating;
   CBookmark m_EpBookmark;
+  int m_iDvdSeasonNumber;
+  int m_iDvdEpisodeNumber;
   int m_iBookmarkId;
   int m_iIdShow;
   int m_iIdSeason;
