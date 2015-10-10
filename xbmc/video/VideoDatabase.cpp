@@ -191,7 +191,7 @@ void CVideoDatabase::CreateTables()
   m_pDS->exec("CREATE TABLE sets ( idSet integer primary key, strSet text, strOverview text)");
 
   CLog::Log(LOGINFO, "create seasons table");
-  m_pDS->exec("CREATE TABLE seasons ( idSeason integer primary key, idShow integer, season integer, name text)");
+  m_pDS->exec("CREATE TABLE seasons ( idSeason integer primary key, idType text, idShow integer, season integer, name text)");
 
   CLog::Log(LOGINFO, "create art table");
   m_pDS->exec("CREATE TABLE art(art_id INTEGER PRIMARY KEY, media_id INTEGER, media_type TEXT, type TEXT, url TEXT)");
@@ -262,7 +262,8 @@ void CVideoDatabase::CreateAnalytics()
   m_pDS->exec("CREATE INDEX ixEpisodeBasePath ON episode ( c19(12) )");
 
   m_pDS->exec("CREATE INDEX ix_streamdetails ON streamdetails (idFile)");
-  m_pDS->exec("CREATE INDEX ix_seasons ON seasons (idShow, season)");
+  m_pDS->exec("CREATE UNIQUE INDEX ix_seasons_type ON seasons (idSeason, idType)");
+  m_pDS->exec("CREATE INDEX ix_seasons ON seasons (idShow, idType, season)");
   m_pDS->exec("CREATE INDEX ix_art ON art(media_id, media_type(20), type(20))");
 
   CreateLinkIndex("tag");
@@ -1823,7 +1824,7 @@ bool CVideoDatabase::GetTvShowInfo(const std::string& strPath, CVideoInfoTag& de
   return false;
 }
 
-bool CVideoDatabase::GetSeasonInfo(int idSeason, CVideoInfoTag& details)
+bool CVideoDatabase::GetSeasonInfo(int idSeason, std::string idType, CVideoInfoTag& details)
 {
   if (idSeason < 0)
     return false;
@@ -1833,7 +1834,7 @@ bool CVideoDatabase::GetSeasonInfo(int idSeason, CVideoInfoTag& details)
     if (!m_pDB.get() || !m_pDS.get())
       return false;
 
-    std::string sql = PrepareSQL("SELECT idShow FROM seasons WHERE idSeason=%i", idSeason);
+    std::string sql = PrepareSQL("SELECT idShow FROM seasons WHERE idSeason=%i AND idType='%s'", idSeason, idType);
     if (!m_pDS->query(sql))
       return false;
 
@@ -2341,17 +2342,17 @@ bool CVideoDatabase::UpdateDetailsForTvShow(int idTvShow, const CVideoInfoTag &d
   AddActorLinksToItem(idTvShow, MediaTypeTvShow, "director", details.m_director);
 
   // add "all seasons" - the rest are added in SetDetailsForEpisode
-  AddSeason(idTvShow, -1);
+  AddSeason(idTvShow, -1, "airdate");
 
   // add any named seasons
   for (const auto& namedSeason : details.m_namedSeasons)
   {
     // make sure the named season exists
-    int seasonId = AddSeason(idTvShow, namedSeason.first);
+    int seasonId = AddSeason(idTvShow, namedSeason.first, "airdate");
 
     // get any existing details for the named season
     CVideoInfoTag season;
-    if (!GetSeasonInfo(seasonId, season) || season.m_strSortTitle == namedSeason.second)
+    if (!GetSeasonInfo(seasonId, "airdate", season) || season.m_strSortTitle == namedSeason.second)
       continue;
 
     season.SetSortTitle(namedSeason.second);
@@ -2361,7 +2362,7 @@ bool CVideoDatabase::UpdateDetailsForTvShow(int idTvShow, const CVideoInfoTag &d
   SetArtForItem(idTvShow, MediaTypeTvShow, artwork);
   for (std::map<int, std::map<std::string, std::string>>::const_iterator i = seasonArt.begin(); i != seasonArt.end(); ++i)
   {
-    int idSeason = AddSeason(idTvShow, i->first);
+    int idSeason = AddSeason(idTvShow, i->first, "airdate");
     if (idSeason > -1)
       SetArtForItem(idSeason, MediaTypeSeason, i->second);
   }
@@ -2383,7 +2384,7 @@ bool CVideoDatabase::UpdateDetailsForTvShow(int idTvShow, const CVideoInfoTag &d
 }
 
 int CVideoDatabase::SetDetailsForSeason(const CVideoInfoTag& details, const std::map<std::string,
-    std::string> &artwork, int idShow, int idSeason /* = -1 */)
+    std::string> &artwork, int idShow, int idSeason /* = -1 */, std::string idType)
 {
   if (idShow < 0 || details.m_iSeason < -1)
     return -1;
@@ -2393,7 +2394,7 @@ int CVideoDatabase::SetDetailsForSeason(const CVideoInfoTag& details, const std:
     BeginTransaction();
     if (idSeason < 0)
     {
-      idSeason = AddSeason(idShow, details.m_iSeason);
+      idSeason = AddSeason(idShow, details.m_iSeason, "airdate");
       if (idSeason < 0)
       {
         RollbackTransaction();
@@ -2407,7 +2408,7 @@ int CVideoDatabase::SetDetailsForSeason(const CVideoInfoTag& details, const std:
     std::string sql = PrepareSQL("UPDATE seasons SET season=%i", details.m_iSeason);
     if (!details.m_strSortTitle.empty())
       sql += PrepareSQL(", name='%s'", details.m_strSortTitle.c_str());
-    sql += PrepareSQL(" WHERE idSeason=%i", idSeason);
+    sql += PrepareSQL(" WHERE idSeason=%i AND idType='%s'", idSeason, idType);
     m_pDS->exec(sql.c_str());
     CommitTransaction();
 
@@ -2458,7 +2459,7 @@ int CVideoDatabase::SetDetailsForEpisode(const std::string& strFilenameAndPath, 
     }
 
     // ensure we have this season already added
-    int idSeason = AddSeason(idShow, details.m_iSeason);
+    int idSeason = AddSeason(idShow, details.m_iSeason, "airdate");
 
     SetArtForItem(idEpisode, MediaTypeEpisode, artwork);
 
@@ -2509,21 +2510,21 @@ int CVideoDatabase::SetDetailsForEpisode(const std::string& strFilenameAndPath, 
   return -1;
 }
 
-int CVideoDatabase::GetSeasonId(int showID, int season)
+int CVideoDatabase::GetSeasonId(int showID, int season, std::string idType)
 {
-  std::string sql = PrepareSQL("idShow=%i AND season=%i", showID, season);
+  std::string sql = PrepareSQL("idShow=%i AND season=%i AND idType='%s'", showID, season, idType);
   std::string id = GetSingleValue("seasons", "idSeason", sql);
   if (id.empty())
     return -1;
   return strtol(id.c_str(), NULL, 10);
 }
 
-int CVideoDatabase::AddSeason(int showID, int season)
+int CVideoDatabase::AddSeason(int showID, int season, std::string idType)
 {
-  int seasonId = GetSeasonId(showID, season);
+  int seasonId = GetSeasonId(showID, season, idType);
   if (seasonId < 0)
   {
-    if (ExecuteQuery(PrepareSQL("INSERT INTO seasons (idShow,season,name) VALUES(%i,%i,'')", showID, season)))
+    if (ExecuteQuery(PrepareSQL("INSERT INTO seasons (idType, idShow,season,name) VALUES(%i,%i,'')", idType, showID, season)))
       seasonId = (int)m_pDS->lastinsertid();
   }
   return seasonId;
@@ -3112,7 +3113,9 @@ void CVideoDatabase::DeleteSeason(int idSeason, bool bKeepId /* = false */)
     BeginTransaction();
 
     std::string strSQL = PrepareSQL("SELECT episode.idEpisode FROM episode "
-                                    "JOIN seasons ON seasons.idSeason = %d AND episode.idShow = seasons.idShow AND episode.c%02d = seasons.season ",
+                                    "JOIN seasons ON seasons.idSeason = %d "
+                                    "AND episode.idShow = seasons.idShow "
+                                    "AND episode.c%02d = seasons.season ",
                                    idSeason, VIDEODB_ID_EPISODE_SEASON);
     m_pDS2->query(strSQL);
     while (!m_pDS2->eof())
@@ -4006,7 +4009,7 @@ bool CVideoDatabase::RemoveArtForItem(int mediaId, const MediaType &mediaType, c
   return result;
 }
 
-bool CVideoDatabase::GetTvShowSeasons(int showId, std::map<int, int> &seasons)
+bool CVideoDatabase::GetTvShowSeasons(int showId, std::map<int, int> &seasons, std::string idType)
 {
   try
   {
@@ -4014,7 +4017,7 @@ bool CVideoDatabase::GetTvShowSeasons(int showId, std::map<int, int> &seasons)
     if (NULL == m_pDS2.get()) return false; // using dataset 2 as we're likely called in loops on dataset 1
 
     // get all seasons for this show
-    std::string sql = PrepareSQL("select idSeason,season from seasons where idShow=%i", showId);
+    std::string sql = PrepareSQL("SELECT idSeason,season FROM seasons WHERE idShow=%i AND idType='%s'", showId, idType);
     m_pDS2->query(sql);
 
     seasons.clear();
@@ -4041,7 +4044,7 @@ bool CVideoDatabase::GetTvShowSeasonArt(int showId, std::map<int, std::map<std::
     if (NULL == m_pDS2.get()) return false; // using dataset 2 as we're likely called in loops on dataset 1
 
     std::map<int, int> seasons;
-    GetTvShowSeasons(showId, seasons);
+    GetTvShowSeasons(showId, seasons, "airdate");
 
     for (std::map<int, int>::const_iterator i = seasons.begin(); i != seasons.end(); ++i)
     {
@@ -4680,11 +4683,19 @@ void CVideoDatabase::UpdateTables(int iVersion)
       m_pDS->next();
     }
   }
+
+  if (iVersion < 100)
+  {
+    // Add idType to episode table, so we don't have to join via idShow and season in the future
+    m_pDS->exec("ALTER TABLE seasons ADD idType text");
+
+    m_pDS->exec("UPDATE seasons SET idType = 'airdate'");
+  }
 }
 
 int CVideoDatabase::GetSchemaVersion() const
 {
-  return 99;
+  return 100;
 }
 
 bool CVideoDatabase::LookupByFolders(const std::string &path, bool shows)
@@ -8894,7 +8905,7 @@ void CVideoDatabase::ImportFromXML(const std::string &path)
         scanner.GetSeasonThumbs(*artItem.GetVideoInfoTag(), seasonArt, CVideoThumbLoader::GetArtTypes(MediaTypeSeason), true);
         for (std::map<int, std::map<std::string, std::string> >::iterator i = seasonArt.begin(); i != seasonArt.end(); ++i)
         {
-          int seasonID = AddSeason(showID, i->first);
+          int seasonID = AddSeason(showID, i->first, "airdate");
           SetArtForItem(seasonID, MediaTypeSeason, i->second);
         }
         current++;

@@ -250,7 +250,7 @@ JSONRPC_STATUS CVideoLibrary::GetSeasonDetails(const std::string &method, ITrans
   int id = (int)parameterObject["seasonid"].asInteger();
 
   CVideoInfoTag infos;
-  if (!videodatabase.GetSeasonInfo(id, infos) ||
+  if (!videodatabase.GetSeasonInfo(id, "airdate", infos) ||
       infos.m_iDbId <= 0 || infos.m_iIdShow <= 0)
     return InvalidParams;
   
@@ -607,7 +607,7 @@ JSONRPC_STATUS CVideoLibrary::SetSeasonDetails(const std::string &method, ITrans
     return InternalError;
 
   CVideoInfoTag infos;
-  videodatabase.GetSeasonInfo(id, infos);
+  videodatabase.GetSeasonInfo(id, "airdate", infos);
   if (infos.m_iDbId <= 0 || infos.m_iIdShow <= 0)
   {
     videodatabase.Close();

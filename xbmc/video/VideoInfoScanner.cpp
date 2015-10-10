@@ -716,7 +716,7 @@ namespace VIDEO
         GetSeasonThumbs(showInfo, seasonArt, CVideoThumbLoader::GetArtTypes(MediaTypeSeason), useLocal);
         for (std::map<int, std::map<std::string, std::string> >::const_iterator i = seasonArt.begin(); i != seasonArt.end(); ++i)
         {
-          int seasonID = m_database.AddSeason(showID, i->first);
+          int seasonID = m_database.AddSeason(showID, i->first, "airdate");
           m_database.SetArtForItem(seasonID, MediaTypeSeason, i->second);
         }
       }

@@ -1084,7 +1084,7 @@ bool CGUIDialogVideoInfo::UpdateVideoItemTitle(const CFileItemPtr &pItem)
   }
   else if (mediaType == MediaTypeSeason)
   {
-    database.GetSeasonInfo(iDbId, detail);
+    database.GetSeasonInfo(iDbId, "airdate", detail);
     title = detail.m_strSortTitle;
   }
   else if (mediaType == MediaTypeTvShow)

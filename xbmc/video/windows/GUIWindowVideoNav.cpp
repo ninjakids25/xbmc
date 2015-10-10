@@ -401,7 +401,7 @@ bool CGUIWindowVideoNav::GetDirectory(const std::string &strDirectory, CFileItem
             seasonParam = -1;
 
           if (seasonParam >= -1)
-            seasonID = m_database.GetSeasonId(details.m_iDbId, seasonParam);
+            seasonID = m_database.GetSeasonId(details.m_iDbId, seasonParam, "airdate");
           else
             seasonID = items[firstIndex]->GetVideoInfoTag()->m_iIdSeason;
 

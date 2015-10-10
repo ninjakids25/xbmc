@@ -331,7 +331,7 @@ void CDirectoryNode::AddQueuingFolder(CFileItemList& items) const
         CVideoDatabase db;
         if (db.Open())
         {
-          pItem->GetVideoInfoTag()->m_iDbId = db.GetSeasonId(pItem->GetVideoInfoTag()->m_iIdShow, -1);
+          pItem->GetVideoInfoTag()->m_iDbId = db.GetSeasonId(pItem->GetVideoInfoTag()->m_iIdShow, -1, "airdate");
           db.Close();
         }
         pItem->GetVideoInfoTag()->m_type = MediaTypeSeason;

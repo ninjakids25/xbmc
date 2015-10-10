@@ -463,7 +463,7 @@ public:
   bool LoadVideoInfo(const std::string& strFilenameAndPath, CVideoInfoTag& details);
   bool GetMovieInfo(const std::string& strFilenameAndPath, CVideoInfoTag& details, int idMovie = -1);
   bool GetTvShowInfo(const std::string& strPath, CVideoInfoTag& details, int idTvShow = -1, CFileItem* item = NULL);
-  bool GetSeasonInfo(int idSeason, CVideoInfoTag& details);
+  bool GetSeasonInfo(int idSeason, std::string idType, CVideoInfoTag& details);
   bool GetEpisodeInfo(const std::string& strFilenameAndPath, CVideoInfoTag& details, int idEpisode = -1);
   bool GetMusicVideoInfo(const std::string& strFilenameAndPath, CVideoInfoTag& details, int idMVideo=-1);
   bool GetSetInfo(int idSet, CVideoInfoTag& details);
@@ -472,7 +472,7 @@ public:
   int GetPathId(const std::string& strPath);
   int GetTvShowId(const std::string& strPath);
   int GetEpisodeId(const std::string& strFilenameAndPath, int idEpisode=-1, int idSeason=-1); // idEpisode, idSeason are used for multipart episodes as hints
-  int GetSeasonId(int idShow, int season);
+  int GetSeasonId(int idShow, int season, std::string idType);
 
   void GetEpisodesByFile(const std::string& strFilenameAndPath, std::vector<CVideoInfoTag>& episodes);
 
@@ -494,7 +494,7 @@ public:
    */
   int SetDetailsForTvShow(const std::vector< std::pair<std::string, std::string> > &paths, const CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, const std::map<int, std::map<std::string, std::string> > &seasonArt, int idTvShow = -1);
   bool UpdateDetailsForTvShow(int idTvShow, const CVideoInfoTag &details, const std::map<std::string, std::string> &artwork, const std::map<int, std::map<std::string, std::string> > &seasonArt);
-  int SetDetailsForSeason(const CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, int idShow, int idSeason = -1);
+  int SetDetailsForSeason(const CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, int idShow, int idSeason = -1, std::string idType = "airdate");
   int SetDetailsForEpisode(const std::string& strFilenameAndPath, const CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, int idShow, int idEpisode=-1);
   int SetDetailsForMusicVideo(const std::string& strFilenameAndPath, const CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, int idMVideo = -1);
   void SetStreamDetailsForFile(const CStreamDetails& details, const std::string &strFileNameAndPath);
@@ -787,7 +787,7 @@ public:
   std::string GetArtForItem(int mediaId, const MediaType &mediaType, const std::string &artType);
   bool RemoveArtForItem(int mediaId, const MediaType &mediaType, const std::string &artType);
   bool RemoveArtForItem(int mediaId, const MediaType &mediaType, const std::set<std::string> &artTypes);
-  bool GetTvShowSeasons(int showId, std::map<int, int> &seasons);
+  bool GetTvShowSeasons(int showId, std::map<int, int> &seasons, std::string idType);
   bool GetTvShowSeasonArt(int mediaId, std::map<int, std::map<std::string, std::string> > &seasonArt);
   bool GetArtTypes(const MediaType &mediaType, std::vector<std::string> &artTypes);
 
@@ -801,9 +801,10 @@ public:
   /*! \brief Will check if the season exists and if that is not the case add it to the database.
   \param showID The id of the show in question.
   \param season The season number we want to add.
+  \param idType The type of season your looking for 'airdate'|'dvd'|'absolute'
   \return The dbId of the season.
   */
-  int AddSeason(int showID, int season);
+  int AddSeason(int showID, int season, std::string idType);
   int AddSet(const std::string& strSet, const std::string& strOverview = "");
   void ClearMovieSet(int idMovie);
   void SetMovieSet(int idMovie, int idSet);
