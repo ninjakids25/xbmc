@@ -507,59 +507,6 @@ bool CDatabase::Connect(const std::string &dbName, const DatabaseSettings &dbSet
   return true;
 }
 
-int CDatabase::GetDBVersion()
-{
-  m_pDS->query("SELECT idVersion FROM version\n");
-  if (m_pDS->num_rows() > 0)
-    return m_pDS->fv("idVersion").get_asInt();
-  return 0;
-}
-
-bool CDatabase::UpdateVersion(const std::string &dbName)
-{
-  int version = GetDBVersion();
-  if (version < GetMinSchemaVersion())
-  {
-    CLog::Log(LOGERROR, "Can't update database %s from version %i - it's too old", dbName.c_str(), version);
-    return false;
-  }
-  else if (version < GetSchemaVersion())
-  {
-    CLog::Log(LOGNOTICE, "Attempting to update the database %s from version %i to %i", dbName.c_str(), version, GetSchemaVersion());
-    bool success = true;
-    BeginTransaction();
-    try
-    {
-      // drop old analytics, update table(s), recreate analytics, update version
-      m_pDB->drop_analytics();
-      UpdateTables(version);
-      CreateAnalytics();
-      UpdateVersionNumber();
-    }
-    catch (...)
-    {
-      CLog::Log(LOGERROR, "Exception updating database %s from version %i to %i", dbName.c_str(), version, GetSchemaVersion());
-      success = false;
-    }
-    if (!success)
-    {
-      CLog::Log(LOGERROR, "Error updating database %s from version %i to %i", dbName.c_str(), version, GetSchemaVersion());
-      RollbackTransaction();
-      return false;
-    }
-    CommitTransaction();
-    CLog::Log(LOGINFO, "Update to version %i successful", GetSchemaVersion());
-  }
-  else if (version > GetSchemaVersion())
-  {
-    CLog::Log(LOGERROR, "Can't open the database %s as it is a NEWER version than what we were expecting?", dbName.c_str());
-    return false;
-  }
-  else 
-    CLog::Log(LOGNOTICE, "Running database version %s", dbName.c_str());
-  return true;
-}
-
 bool CDatabase::IsOpen()
 {
   return m_openCount > 0;
@@ -673,35 +620,6 @@ bool CDatabase::InTransaction()
 {
   if (NULL != m_pDB.get()) return false;
   return m_pDB->in_transaction();
-}
-
-bool CDatabase::CreateDatabase()
-{
-  BeginTransaction();
-  try
-  {
-    CLog::Log(LOGINFO, "creating version table");
-    m_pDS->exec("CREATE TABLE version (idVersion integer, iCompressCount integer)\n");
-    std::string strSQL=PrepareSQL("INSERT INTO version (idVersion,iCompressCount) values(%i,0)\n", GetSchemaVersion());
-    m_pDS->exec(strSQL);
-
-    CreateTables();
-    CreateAnalytics();
-  }
-  catch (...)
-  {
-    CLog::Log(LOGERROR, "%s unable to create database:%i", __FUNCTION__, (int)GetLastError());
-    RollbackTransaction();
-    return false;
-  }
-  CommitTransaction();
-  return true;
-}
-
-void CDatabase::UpdateVersionNumber()
-{
-  std::string strSQL=PrepareSQL("UPDATE version SET idVersion=%i\n", GetSchemaVersion());
-  m_pDS->exec(strSQL);
 }
 
 bool CDatabase::BuildSQL(const std::string &strQuery, const Filter &filter, std::string &strSQL)

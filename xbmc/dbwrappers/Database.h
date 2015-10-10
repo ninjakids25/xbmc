@@ -168,40 +168,6 @@ protected:
   void Split(const std::string& strFileNameAndPath, std::string& strPath, std::string& strFileName);
 
   virtual bool Open();
-
-  /*! \brief Create database tables and analytics as needed.
-   Calls CreateTables() and CreateAnalytics() on child classes.
-   */
-  bool CreateDatabase();
-
-  /* \brief Create tables for the current database schema.
-   Will be called on database creation.
-   */
-  virtual void CreateTables()=0;
-
-  /* \brief Create views, indices and triggers for the current database schema.
-   Will be called on database creation and database update.
-   */
-  virtual void CreateAnalytics()=0;
-
-  /* \brief Update database tables to the current version.
-   Note that analytics (views, indices, triggers) are not present during this
-   function, so don't rely on them.
-   */
-  virtual void UpdateTables(int version) {};
-
-  /* \brief The minimum schema version that we support updating from.
-   */
-  virtual int GetMinSchemaVersion() const { return 0; };
-
-  /* \brief The current schema version.
-   */
-  virtual int GetSchemaVersion() const=0;
-  virtual const char *GetBaseDBName() const=0;
-
-  int GetDBVersion();
-  bool UpdateVersion(const std::string &dbName);
-
   bool BuildSQL(const std::string &strQuery, const Filter &filter, std::string &strSQL);
 
   bool m_sqlite; ///< \brief whether we use sqlite (defaults to true)
@@ -213,7 +179,6 @@ protected:
 private:
   void InitSettings(DatabaseSettings &dbSettings);
   bool Connect(const std::string &dbName, const DatabaseSettings &db, bool create);
-  void UpdateVersionNumber();
 
   bool m_bMultiWrite; /*!< True if there are any queries in the queue, false otherwise */
   unsigned int m_openCount;
