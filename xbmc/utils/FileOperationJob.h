@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include "FileItem.h"
+#include "FileItemList.h"
 #include "filesystem/File.h"
 #include "utils/ProgressJob.h"
 

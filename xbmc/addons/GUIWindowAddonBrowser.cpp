@@ -31,7 +31,7 @@
 #include "guilib/GUIWindowManager.h"
 #include "utils/URIUtils.h"
 #include "URL.h"
-#include "FileItem.h"
+#include "FileItemList.h"
 #include "filesystem/AddonsDirectory.h"
 #include "addons/AddonInstaller.h"
 #include "settings/Settings.h"

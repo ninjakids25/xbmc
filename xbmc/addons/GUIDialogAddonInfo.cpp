@@ -23,7 +23,7 @@
 #include "addons/AddonInstaller.h"
 #include "addons/AddonManager.h"
 #include "AddonDatabase.h"
-#include "FileItem.h"
+#include "FileItemList.h"
 #include "filesystem/Directory.h"
 #include "GUIDialogAddonSettings.h"
 #include "cores/AudioEngine/DSPAddons/ActiveAEDSP.h"

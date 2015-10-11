@@ -3261,6 +3261,7 @@
     <ClCompile Include="..\..\xbmc\input\InputCodingTableKorean.cpp">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\FileItemList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\xbmc\win32\pch.h">
@@ -6328,6 +6329,7 @@
     <ClInclude Include="..\..\xbmc\input\InputCodingTableKorean.h">
       <Filter>input</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\FileItemList.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\xbmc\win32\XBMC_PC.rc">

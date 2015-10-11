@@ -19,7 +19,7 @@
  */
 
 #include "GUIViewStateAddonBrowser.h"
-#include "FileItem.h"
+#include "FileItemList.h"
 #include "filesystem/File.h"
 #include "guilib/GraphicContext.h"
 #include "guilib/WindowIDs.h"

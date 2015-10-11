@@ -39,7 +39,7 @@
 #include "guilib/GUIWindowManager.h"
 #include "messaging/ApplicationMessenger.h"
 #include "guilib/GUIKeyboardFactory.h"
-#include "FileItem.h"
+#include "FileItemList.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/MediaSourceSettings.h"
 #include "GUIInfoManager.h"

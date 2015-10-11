@@ -21,6 +21,7 @@
 #include "system.h"
 
 #include "FileOperationJob.h"
+#include "FileItem.h"
 #include "URL.h"
 #include "Util.h"
 #include "dialogs/GUIDialogExtendedProgressBar.h"

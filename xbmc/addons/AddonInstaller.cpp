@@ -22,6 +22,7 @@
 #include "events/EventLog.h"
 #include "events/AddonManagementEvent.h"
 #include "events/NotificationEvent.h"
+#include "FileItemList.h"
 #include "utils/log.h"
 #include "utils/FileUtils.h"
 #include "utils/URIUtils.h"

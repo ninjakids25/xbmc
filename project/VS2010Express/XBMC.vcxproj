@@ -322,6 +322,7 @@
     <ClCompile Include="..\..\xbmc\events\windows\GUIViewStateEventLog.cpp" />
     <ClCompile Include="..\..\xbmc\events\windows\GUIWindowEventLog.cpp" />
     <ClCompile Include="..\..\xbmc\FileItem.cpp" />
+    <ClCompile Include="..\..\xbmc\FileItemList.cpp" />
     <ClCompile Include="..\..\xbmc\FileItemListModification.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\EventsDirectory.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\AddonsDirectory.cpp" />
@@ -963,6 +964,7 @@
     <ClInclude Include="..\..\xbmc\events\UniqueEvent.h" />
     <ClInclude Include="..\..\xbmc\events\windows\GUIViewStateEventLog.h" />
     <ClInclude Include="..\..\xbmc\events\windows\GUIWindowEventLog.h" />
+    <ClInclude Include="..\..\xbmc\FileItemList.h" />
     <ClInclude Include="..\..\xbmc\FileItemListModification.h" />
     <ClInclude Include="..\..\xbmc\filesystem\EventsDirectory.h" />
     <ClInclude Include="..\..\xbmc\filesystem\BlurayFile.h" />

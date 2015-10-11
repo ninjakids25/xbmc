@@ -26,6 +26,7 @@
 #include "utils/log.h"
 #include "Skin.h"
 #include "FileItem.h"
+#include "FileItemList.h"
 #include "filesystem/File.h"
 #include "utils/URIUtils.h"
 #include "utils/StringUtils.h"

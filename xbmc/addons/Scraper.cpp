@@ -30,7 +30,7 @@
 #include "music/infoscanner/MusicArtistInfo.h"
 #include "utils/fstrcmp.h"
 #include "settings/AdvancedSettings.h"
-#include "FileItem.h"
+#include "FileItemList.h"
 #include "utils/URIUtils.h"
 #include "utils/XMLUtils.h"
 #include "utils/StringUtils.h"
