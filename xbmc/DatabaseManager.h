@@ -64,6 +64,14 @@ public:
    */ 
   bool CanOpen(const std::string &name);
 
+protected:
+  /*!
+  \brief Reindex all databases and add the result to the SearchDatabase.
+  \param name The name of the database you want to reindex. Leave empty for all. 
+  \return the global instance.
+  */
+  void CDatabaseManager::ReIndex(const std::string &name = "");
+
 private:
   // private construction, and no assignements; use the provided singleton methods
   CDatabaseManager();

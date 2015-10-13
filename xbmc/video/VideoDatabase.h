@@ -882,6 +882,7 @@ private:
   virtual void CreateTables();
   virtual void CreateAnalytics();
   virtual void UpdateTables(int version);
+  virtual std::vector<std::tuple<int, std::string, std::string, std::string>> ReIndex() override;
   void CreateLinkIndex(const char *table);
   void CreateForeignLinkIndex(const char *table, const char *foreignkey);
 

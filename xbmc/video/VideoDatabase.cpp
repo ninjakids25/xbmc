@@ -9433,3 +9433,10 @@ bool CVideoDatabase::SetVideoUserRating(int dbId, int rating, const MediaType& m
   }
   return false;
 }
+
+std::vector<std::tuple<int, std::string, std::string, std::string>> ReIndex()
+{
+ // TODO Get data from tables and create list then return it
+
+  
+}

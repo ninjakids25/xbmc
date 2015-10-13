@@ -370,6 +370,9 @@
     <Filter Include="interfaces\builtins">
       <UniqueIdentifier>{248ffbc4-43f5-4aaf-b259-2dd4f840fcef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="search">
+      <UniqueIdentifier>{b8ff337d-d052-4fc0-9946-280435739d0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\xbmc\win32\pch.cpp">
@@ -3260,6 +3263,9 @@
     </ClCompile>
     <ClCompile Include="..\..\xbmc\input\InputCodingTableKorean.cpp">
       <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\search\SearchDatabase.cpp">
+      <Filter>search</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -6327,6 +6333,9 @@
     </ClInclude>
     <ClInclude Include="..\..\xbmc\input\InputCodingTableKorean.h">
       <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\search\SearchDatabase.h">
+      <Filter>search</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

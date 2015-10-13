@@ -22,6 +22,7 @@
 #include "utils/log.h"
 #include "addons/AddonDatabase.h"
 #include "view/ViewDatabase.h"
+#include "search/SearchDatabase.h"
 #include "TextureDatabase.h"
 #include "music/MusicDatabase.h"
 #include "video/VideoDatabase.h"
@@ -65,6 +66,7 @@ void CDatabaseManager::Initialize(bool addonsOnly)
   { CPVRDatabase db; UpdateDatabase(db, &g_advancedSettings.m_databaseTV); }
   { CEpgDatabase db; UpdateDatabase(db, &g_advancedSettings.m_databaseEpg); }
   { CActiveAEDSPDatabase db; UpdateDatabase(db, &g_advancedSettings.m_databaseADSP); }
+  { CSearchDatabase db; UpdateDatabase(db); }
   CLog::Log(LOGDEBUG, "%s, updating databases... DONE", __FUNCTION__);
 }
 
@@ -97,4 +99,18 @@ void CDatabaseManager::UpdateStatus(const std::string &name, DB_STATUS status)
 {
   CSingleLock lock(m_section);
   m_dbStatus[name] = status;
+}
+
+void CDatabaseManager::ReIndex(const std::string &name)
+{
+  CLog::Log(LOGDEBUG, "%s, updating search index...", __FUNCTION__);
+  std::vector<std::tuple<int, std::string, std::string, std::string>> index;
+  { CAddonDatabase db; index.push_back(db.ReIndex()); }
+  { CMusicDatabase db; index.push_back(db.ReIndex()); }
+  { CVideoDatabase db; index.push_back(db.ReIndex()); }
+  { CPVRDatabase db; index.push_back(db.ReIndex()); }
+  { CEpgDatabase db; index.push_back(db.ReIndex()); }
+  CLog::Log(LOGDEBUG, "%s, updating search index... DONE", __FUNCTION__);
+
+  // TODO write to seach database
 }

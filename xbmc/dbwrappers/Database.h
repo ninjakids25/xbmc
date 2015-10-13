@@ -194,6 +194,11 @@ protected:
    */
   virtual int GetMinSchemaVersion() const { return 0; };
 
+  /* \brief Reindex the content of this database and return it
+  /return A list of search terms and identifiers
+  */
+  virtual std::vector<std::tuple<int, std::string, std::string, std::string>> ReIndex();
+
   /* \brief The current schema version.
    */
   virtual int GetSchemaVersion() const=0;
