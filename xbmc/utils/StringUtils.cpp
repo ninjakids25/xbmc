@@ -42,6 +42,7 @@
 #include <functional>
 
 #include <assert.h>
+#include <codecvt>
 #include <math.h>
 #include <sstream>
 #include <time.h>
@@ -1200,4 +1201,12 @@ void StringUtils::Tokenize(const std::string& input, std::vector<std::string>& t
     // Skip delimiters.  Note the "not_of"
     dataPos = input.find_first_not_of(delimiter, nextDelimPos);
   }
+}
+
+std::string ws2s(const std::wstring& wstr)
+{
+  typedef std::codecvt_utf8<wchar_t> convert_typeX;
+  std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+  return converterX.to_bytes(wstr);
 }

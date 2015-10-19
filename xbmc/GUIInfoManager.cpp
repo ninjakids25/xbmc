@@ -479,6 +479,7 @@ const infomap listitem_labels[]= {{ "thumb",            LISTITEM_THUMB },
                                   { "overlay",          LISTITEM_OVERLAY },
                                   { "label",            LISTITEM_LABEL },
                                   { "label2",           LISTITEM_LABEL2 },
+                                  { "sortlabel",        LISTITEM_SORT_LABEL },
                                   { "title",            LISTITEM_TITLE },
                                   { "tracknumber",      LISTITEM_TRACKNUMBER },
                                   { "artist",           LISTITEM_ARTIST },
@@ -4978,6 +4979,8 @@ std::string CGUIInfoManager::GetItemLabel(const CFileItem *item, int info, std::
     return item->GetLabel();
   case LISTITEM_LABEL2:
     return item->GetLabel2();
+  case LISTITEM_SORT_LABEL:
+    return StringUtils::ws2s(item->GetSortLabel());
   case LISTITEM_TITLE:
     if (item->HasPVRChannelInfoTag())
     {
