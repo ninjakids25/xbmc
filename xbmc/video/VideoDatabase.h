@@ -699,6 +699,7 @@ public:
   bool GetRecentlyAddedMoviesNav(const std::string& strBaseDir, CFileItemList& items, unsigned int limit=0);
   bool GetRecentlyAddedEpisodesNav(const std::string& strBaseDir, CFileItemList& items, unsigned int limit=0);
   bool GetRecentlyAddedMusicVideosNav(const std::string& strBaseDir, CFileItemList& items, unsigned int limit=0);
+  bool GetInProgressTvShowsNav(const std::string& strBaseDir, CFileItemList& items, unsigned int limit=0);
 
   bool HasContent();
   bool HasContent(VIDEODB_CONTENT_TYPE type);

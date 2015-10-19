@@ -6510,6 +6510,15 @@ bool CVideoDatabase::GetRecentlyAddedMusicVideosNav(const std::string& strBaseDi
   return GetMusicVideosByWhere(strBaseDir, filter, items);
 }
 
+bool CVideoDatabase::GetInProgressTvShowsNav(const std::string& strBaseDir, CFileItemList& items, unsigned int limit)
+{
+  Filter filter;
+  filter.order = PrepareSQL("c%02d", VIDEODB_ID_TV_TITLE);
+  filter.limit = PrepareSQL("%u", limit ? limit : g_advancedSettings.m_iVideoLibraryRecentlyAddedItems);
+  filter.where = "watchedCount != 0 AND totalCount != watchedCount";
+  return GetTvShowsByWhere(strBaseDir, filter, items);
+}
+
 std::string CVideoDatabase::GetGenreById(int id)
 {
   return GetSingleValue("genre", "name", PrepareSQL("genre_id=%i", id));

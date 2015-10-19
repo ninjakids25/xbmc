@@ -437,7 +437,8 @@ bool CGUIWindowVideoNav::GetDirectory(const std::string &strDirectory, CFileItem
         }
         items.SetContent("movies");
       }
-      else if (node == NODE_TYPE_TITLE_TVSHOWS)
+      else if (node == NODE_TYPE_TITLE_TVSHOWS ||
+               node == NODE_TYPE_INPROGRESS_TVSHOWS)
         items.SetContent("tvshows");
       else if (node == NODE_TYPE_TITLE_MUSICVIDEOS ||
                node == NODE_TYPE_RECENTLY_ADDED_MUSICVIDEOS)
@@ -1221,6 +1222,8 @@ std::string CGUIWindowVideoNav::GetStartFolder(const std::string &dir)
     return "videodb://recentlyaddedepisodes/";
   else if (lower == "recentlyaddedmusicvideos")
     return "videodb://recentlyaddedmusicvideos/";
+  else if (lower == "inprogresstvshows")
+    return "videodb://inprogresstvshows/";
   else if (lower == "files")
     return "sources://video/";
   return CGUIWindowVideoBase::GetStartFolder(dir);

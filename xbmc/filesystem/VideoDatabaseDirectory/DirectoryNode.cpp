@@ -30,6 +30,7 @@
 #include "DirectoryNodeTvShowsOverview.h"
 #include "DirectoryNodeSeasons.h"
 #include "DirectoryNodeEpisodes.h"
+#include "DirectoryNodeInProgressTvShows.h"
 #include "DirectoryNodeRecentlyAddedMovies.h"
 #include "DirectoryNodeRecentlyAddedEpisodes.h"
 #include "DirectoryNodeMusicVideosOverview.h"
@@ -141,6 +142,8 @@ CDirectoryNode* CDirectoryNode::CreateNode(NODE_TYPE Type, const std::string& st
     return new CDirectoryNodeMusicVideosOverview(strName,pParent);
   case NODE_TYPE_RECENTLY_ADDED_MUSICVIDEOS:
     return new CDirectoryNodeRecentlyAddedMusicVideos(strName,pParent);
+  case NODE_TYPE_INPROGRESS_TVSHOWS:
+    return new CDirectoryNodeInProgressTvShows(strName,pParent);
   case NODE_TYPE_TITLE_MUSICVIDEOS:
     return new CDirectoryNodeTitleMusicVideos(strName,pParent);
   default:

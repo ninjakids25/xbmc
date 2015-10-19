@@ -166,6 +166,7 @@ CGUIViewStateWindowVideoNav::CGUIViewStateWindowVideoNav(const CFileItemList& it
       }
       break;
     case NODE_TYPE_TITLE_TVSHOWS:
+    case NODE_TYPE_INPROGRESS_TVSHOWS:
       {
         AddSortMethod(SortBySortTitle, sortAttributes, 556, LABEL_MASKS("%T", "%M", "%T", "%M"));  // Title, #Episodes | Title, #Episodes
 

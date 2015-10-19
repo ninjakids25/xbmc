@@ -13,29 +13,28 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with XBMC; see the file COPYING.  If not, see
+ *  along with Kodi; see the file COPYING.  If not, see
  *  <http://www.gnu.org/licenses/>.
  *
  */
 
-#include "DirectoryNodeTitleTvShows.h"
-#include "QueryParams.h"
+#include "DirectoryNodeInProgressTvShows.h"
 #include "video/VideoDatabase.h"
 
 using namespace XFILE::VIDEODATABASEDIRECTORY;
 
-CDirectoryNodeTitleTvShows::CDirectoryNodeTitleTvShows(const std::string& strName, CDirectoryNode* pParent)
-  : CDirectoryNode(NODE_TYPE_TITLE_TVSHOWS, strName, pParent)
+CDirectoryNodeInProgressTvShows::CDirectoryNodeInProgressTvShows(const std::string& strName, CDirectoryNode* pParent)
+  : CDirectoryNode(NODE_TYPE_INPROGRESS_TVSHOWS, strName, pParent)
 {
 
 }
 
-NODE_TYPE CDirectoryNodeTitleTvShows::GetChildType() const
+NODE_TYPE CDirectoryNodeInProgressTvShows::GetChildType() const
 {
   return NODE_TYPE_SEASONS;
 }
 
-std::string CDirectoryNodeTitleTvShows::GetLocalizedName() const
+std::string CDirectoryNodeInProgressTvShows::GetLocalizedName() const
 {
   CVideoDatabase db;
   if (db.Open())
@@ -43,16 +42,13 @@ std::string CDirectoryNodeTitleTvShows::GetLocalizedName() const
   return "";
 }
 
-bool CDirectoryNodeTitleTvShows::GetContent(CFileItemList& items) const
+bool CDirectoryNodeInProgressTvShows::GetContent(CFileItemList& items) const
 {
   CVideoDatabase videodatabase;
   if (!videodatabase.Open())
     return false;
-
-  CQueryParams params;
-  CollectQueryParams(params);
-
-  bool bSuccess=videodatabase.GetTvShowsNav(BuildPath(), items, params.GetGenreId(), params.GetYear(), params.GetActorId(), params.GetDirectorId(), params.GetStudioId(), params.GetTagId());
+  
+  bool bSuccess=videodatabase.GetInProgressTvShowsNav(BuildPath(), items);
 
   videodatabase.Close();
 

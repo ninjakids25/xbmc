@@ -219,6 +219,8 @@ bool CVideoDatabaseDirectory::GetLabel(const std::string& strDirectory, std::str
       strLabel = g_localizeStrings.Get(33054); break;
     case NODE_TYPE_EPISODES: // Episodes
       strLabel = g_localizeStrings.Get(20360); break;
+    case NODE_TYPE_INPROGRESS_TVSHOWS: // InProgress TvShows
+      strLabel = g_localizeStrings.Get(626); break;
     default:
       return false;
     }
@@ -280,6 +282,8 @@ std::string CVideoDatabaseDirectory::GetIcon(const std::string &strDirectory)
     return "DefaultRecentlyAddedEpisodes.png";
   case NODE_TYPE_RECENTLY_ADDED_MUSICVIDEOS: // Recently Added Episodes
     return "DefaultRecentlyAddedMusicVideos.png";
+  case NODE_TYPE_INPROGRESS_TVSHOWS: // InProgress TvShows
+    return "DefaultInProgressTvShows.png";
   case NODE_TYPE_STUDIO: // Studios
     return "DefaultStudios.png";
   case NODE_TYPE_MUSICVIDEOS_OVERVIEW: // Music Videos
