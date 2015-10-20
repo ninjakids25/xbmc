@@ -184,6 +184,11 @@ JSONRPC_STATUS CVideoLibrary::GetTVShows(const std::string &method, ITransportLa
   if (!videodatabase.GetTvShowsByWhere(videoUrl.ToString(), nofilter, items, sorting))
     return InvalidParams;
 
+  return GetAdditionalTvShowDetails(parameterObject, items, result, videodatabase, false);
+}
+
+JSONRPC_STATUS CVideoLibrary::GetAdditionalTvShowDetails(const CVariant &parameterObject, CFileItemList &items, CVariant &result, CVideoDatabase &videodatabase, bool limit /* = true */)
+{
   bool additionalInfo = false;
   for (CVariant::const_iterator_array itr = parameterObject["properties"].begin_array(); itr != parameterObject["properties"].end_array(); itr++)
   {
@@ -201,7 +206,7 @@ JSONRPC_STATUS CVideoLibrary::GetTVShows(const std::string &method, ITransportLa
   int size = items.Size();
   if (items.HasProperty("total") && items.GetProperty("total").asInteger() > size)
     size = (int)items.GetProperty("total").asInteger();
-  HandleFileItemList("tvshowid", true, "tvshows", items, parameterObject, result, size, false);
+  HandleFileItemList("tvshowid", true, "tvshows", items, parameterObject, result, size, limit);
 
   return OK;
 }
@@ -441,6 +446,19 @@ JSONRPC_STATUS CVideoLibrary::GetRecentlyAddedMusicVideos(const std::string &met
     return InternalError;
 
   return GetAdditionalMusicVideoDetails(parameterObject, items, result, videodatabase, true);
+}
+
+JSONRPC_STATUS CVideoLibrary::GetInProgressTVShows(const std::string &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
+{
+  CVideoDatabase videodatabase;
+  if (!videodatabase.Open())
+    return InternalError;
+
+  CFileItemList items;
+  if (!videodatabase.GetInProgressTvShowsNav("videodb://inprogresstvshows/", items))
+    return InternalError;
+
+  return GetAdditionalTvShowDetails(parameterObject, items, result, videodatabase, false);
 }
 
 JSONRPC_STATUS CVideoLibrary::GetGenres(const std::string &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
