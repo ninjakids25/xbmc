@@ -41,7 +41,7 @@ CGUISliderControl::CGUISliderControl(int parentID, int controlID, float posX, fl
 {
   m_iType = iType;
   m_rangeSelection = false;
-  m_currentSelector = RangeSelectorLower; // use lower selector by default
+  m_currentSelector = None; // use no selector by default
   m_percentValues[0] = 0;
   m_percentValues[1] = 100;
   m_iStart = 0;
@@ -164,6 +164,14 @@ bool CGUISliderControl::OnAction(const CAction &action)
 {
   switch ( action.GetID() )
   {
+  case ACTION_SELECT_ITEM:
+    SwitchRangeSelector();
+    return true;
+
+  // TODO why isn't this working?
+  if (m_currentSelector == None)
+    break;
+
   case ACTION_MOVE_LEFT:
     Move(-1);
     return true;
@@ -172,11 +180,6 @@ bool CGUISliderControl::OnAction(const CAction &action)
     Move(1);
     return true;
 
-  case ACTION_SELECT_ITEM:
-    // switch between the two sliders
-    if (m_rangeSelection)
-      SwitchRangeSelector();
-    return true;
 
   default:
     break;
@@ -280,10 +283,14 @@ void CGUISliderControl::SetRangeSelector(RangeSelector selector)
 
 void CGUISliderControl::SwitchRangeSelector()
 {
-  if (m_currentSelector == RangeSelectorLower)
+  
+  if (m_currentSelector == None)
+    SetRangeSelector(RangeSelectorLower);
+  // switch to the 2nd slider when the first is selected and the control is setup to have two
+  else if (m_currentSelector == RangeSelectorLower && m_rangeSelection)
     SetRangeSelector(RangeSelectorUpper);
   else
-    SetRangeSelector(RangeSelectorLower);
+    SetRangeSelector(None);
 }
 
 void CGUISliderControl::SetPercentage(float percent, RangeSelector selector /* = RangeSelectorLower */, bool updateCurrent /* = false */)

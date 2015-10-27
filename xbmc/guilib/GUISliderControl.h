@@ -53,7 +53,8 @@ class CGUISliderControl :
 public:
   typedef enum {
     RangeSelectorLower = 0,
-    RangeSelectorUpper = 1
+    RangeSelectorUpper = 1,
+    None = 2
   } RangeSelector;
 
   CGUISliderControl(int parentID, int controlID, float posX, float posY, float width, float height, const CTextureInfo& backGroundTexture, const CTextureInfo& mibTexture, const CTextureInfo& nibTextureFocus, int iType);
