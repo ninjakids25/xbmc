@@ -29,6 +29,7 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
   private RelativeLayout mVideoLayout = null;
   private View thisView = null;
   private Handler handler = new Handler();
+  private Intent mNewIntent = null;
 
   native void _onNewIntent(Intent intent);
   native void _onActivityResult(int requestCode, int resultCode, Intent resultData);
@@ -159,11 +160,8 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
   protected void onNewIntent(Intent intent)
   {
     super.onNewIntent(intent);
-    try {
-      _onNewIntent(intent);
-    } catch (UnsatisfiedLinkError e) {
-      Log.e("Main", "Native not registered");
-    }
+    // Delay until after Resume
+    mNewIntent = intent;
   }
 
   @Override
@@ -232,7 +230,7 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
               Log.e("Main", "Native not registered");
             } finally {
               mNewIntent = null;
-  }
+      }
           }
         }, 500);
     }
