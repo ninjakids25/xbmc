@@ -2242,6 +2242,8 @@ OUTPUT_FILES="Makefile \
     tools/android/packaging/xbmc/src/org/xbmc/kodi/XBMCSettingsContentObserver.java \
     tools/android/packaging/xbmc/src/org/xbmc/kodi/XBMCOnAudioFocusChangeListener.java \
     tools/android/packaging/xbmc/src/org/xbmc/kodi/XBMCVideoView.java \
+    tools/android/packaging/xbmc/src/org/xbmc/kodi/XBMCContentProvider.java \
+    tools/android/packaging/xbmc/src/org/xbmc/kodi/XBMCRecommendationBuilder.java \
     tools/android/packaging/xbmc/activity_main.xml \
     tools/android/packaging/xbmc/strings.xml \
     addons/xbmc.addon/addon.xml"
