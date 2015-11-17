@@ -29,11 +29,10 @@
 #include "IActivityHandler.h"
 #include "IInputHandler.h"
 
-#include "platform/xbmc.h"
-#include "platform/android/jni/Activity.h"
-#include "platform/android/jni/BroadcastReceiver.h"
-#include "platform/android/jni/AudioManager.h"
-#include "platform/android/jni/View.h"
+#include "xbmc.h"
+#include "android/jni/Activity.h"
+#include "android/jni/BroadcastReceiver.h"
+#include "android/jni/AudioManager.h"
 #include "threads/Event.h"
 
 #include "JNIMainActivity.h"
@@ -42,8 +41,6 @@
 class CJNIWakeLock;
 class CAESinkAUDIOTRACK;
 class CVariant;
-class IInputDeviceCallbacks;
-class IInputDeviceEventHandler;
 typedef struct _JNIEnv JNIEnv;
 
 struct androidIcon
@@ -60,9 +57,7 @@ struct androidPackage
   int icon;
 };
 
-class CXBMCApp : public IActivityHandler, public CJNIMainActivity,
-                 public CJNIBroadcastReceiver,
-                 public CJNIAudioManagerAudioFocusChangeListener
+class CXBMCApp : public IActivityHandler, public CJNIMainActivity, public CJNIBroadcastReceiver, public CJNIAudioManagerAudioFocusChangeListener
 {
 public:
   CXBMCApp(ANativeActivity *nativeActivity);
@@ -71,11 +66,6 @@ public:
   virtual void onNewIntent(CJNIIntent intent);
   virtual void onVolumeChanged(int volume);
   virtual void onAudioFocusChange(int focusChange);
-
-  // implementation of CJNIInputManagerInputDeviceListener
-  void onInputDeviceAdded(int deviceId) override;
-  void onInputDeviceChanged(int deviceId) override;
-  void onInputDeviceRemoved(int deviceId) override;
 
   bool isValid() { return m_activity != NULL; }
 
@@ -102,7 +92,8 @@ public:
   
   static int GetBatteryLevel();
   static bool EnableWakeLock(bool on);
-  static bool HasFocus();
+  static bool HasFocus() { return m_hasFocus; }
+  static bool IsResumed() { return m_isResumed; }
   static bool IsHeadsetPlugged();
 
   static bool StartActivity(const std::string &package, const std::string &intent = std::string(), const std::string &dataType = std::string(), const std::string &dataURI = std::string());
@@ -130,16 +121,6 @@ public:
   static void OnPlayBackStopped();
   static void OnPlayBackEnded();
 
-  // input device methods
-  static void RegisterInputDeviceCallbacks(IInputDeviceCallbacks* handler);
-  static void UnregisterInputDeviceCallbacks();
-  static const CJNIViewInputDevice GetInputDevice(int deviceId);
-  static std::vector<int> GetInputDeviceIds();
-
-  static void RegisterInputDeviceEventHandler(IInputDeviceEventHandler* handler);
-  static void UnregisterInputDeviceEventHandler();
-  static bool onInputDeviceEvent(const AInputEvent* event);
-
   static CXBMCApp* get() { return m_xbmcappinstance; }
 
 protected:
@@ -162,9 +143,9 @@ private:
   static CJNIWakeLock *m_wakeLock;
   static int m_batteryLevel;
   static bool m_hasFocus;
+  static bool m_isResumed;
+  static bool m_hasAudioFocus;
   static bool m_headsetPlugged;
-  static IInputDeviceCallbacks* m_inputDeviceCallbacks;
-  static IInputDeviceEventHandler* m_inputDeviceEventHandler;
   bool m_firstrun;
   bool m_exiting;
   pthread_t m_thread;
@@ -174,8 +155,6 @@ private:
   static ANativeWindow* m_window;
   static CEvent m_windowCreated;
 
-  void XBMC_Pause(bool pause);
-  void XBMC_Stop();
   bool XBMC_DestroyDisplay();
   bool XBMC_SetupDisplay();
 };
