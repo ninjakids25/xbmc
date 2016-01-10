@@ -26,11 +26,15 @@ class CJNIFile;
 class CJNIEnvironment : public CJNIBase
 {
 public:
+  static void PopulateStaticFields();
+
+  static std::string  MEDIA_MOUNTED;
+
   static std::string  getExternalStorageState();
   static CJNIFile     getExternalStorageDirectory();
   static CJNIFile     getExternalStoragePublicDirectory(const std::string &type);
 
 protected:
   CJNIEnvironment();
-  ~CJNIEnvironment(){};
+  ~CJNIEnvironment() {};
 };

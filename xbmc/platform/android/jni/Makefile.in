@@ -60,6 +60,9 @@ SRCS      += DisplayMetrics.cpp
 SRCS      += KeyEvent.cpp
 SRCS      += InputManager.cpp
 SRCS      += Os.cpp
+SRCS      += URIPermission.cpp
+SRCS      += DocumentsContract.cpp
+SRCS      += Document.cpp
 
 LIB        = jni.a
 

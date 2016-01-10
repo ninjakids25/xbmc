@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2014 Team XBMC
+ *      Copyright (C) 2013 Team XBMC
  *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -20,22 +20,22 @@
  */
 
 #include "JNIBase.h"
-#include "Context.h"
-#include "Intent.h"
 
-class CVariant;
-struct ANativeActivity;
+class CJNIURI;
 
-class CJNIActivity : public CJNIContext
+class CJNIDocument : public CJNIBase
 {
 public:
-  CJNIActivity(const ANativeActivity *nativeActivity);
-  ~CJNIActivity();
+  static void PopulateStaticFields();
 
-  static bool moveTaskToBack(bool nonRoot);
-  static void startActivityForResult(const CJNIIntent &intent, int requestCode);
+  static std::string COLUMN_DISPLAY_NAME;
+  static std::string COLUMN_MIME_TYPE;
+  static std::string COLUMN_DOCUMENT_ID;
+  static std::string COLUMN_SIZE;
+  static std::string COLUMN_FLAGS;
+  static std::string MIME_TYPE_DIR;
 
-private:
-  CJNIActivity();
+protected:
+  CJNIDocument();
+  ~CJNIDocument(){}
 };
-

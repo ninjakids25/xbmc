@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2014 Team XBMC
+ *      Copyright (C) 2013 Team XBMC
  *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -20,22 +20,21 @@
  */
 
 #include "JNIBase.h"
-#include "Context.h"
-#include "Intent.h"
 
-class CVariant;
-struct ANativeActivity;
+class CJNIURI;
 
-class CJNIActivity : public CJNIContext
+class CJNIDocumentsContract : public CJNIBase
 {
 public:
-  CJNIActivity(const ANativeActivity *nativeActivity);
-  ~CJNIActivity();
+  static void PopulateStaticFields();
 
-  static bool moveTaskToBack(bool nonRoot);
-  static void startActivityForResult(const CJNIIntent &intent, int requestCode);
+  static std::string getTreeDocumentId (const CJNIURI& documentUri);
+  static std::string getDocumentId (const CJNIURI& documentUri);
+  static CJNIURI buildChildDocumentsUriUsingTree (const CJNIURI& treeUri, const std::string& parentDocumentId);
+  static CJNIURI buildChildDocumentsUri (const std::string& authority, const std::string& parentDocumentId);
+  static CJNIURI buildDocumentUriUsingTree  (const CJNIURI& treeUri, const std::string& parentDocumentId);
 
-private:
-  CJNIActivity();
+protected:
+  CJNIDocumentsContract();
+  ~CJNIDocumentsContract(){}
 };
-
