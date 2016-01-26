@@ -43,8 +43,9 @@ namespace ADDON
   class CAddonDll : public CAddon, public ANNOUNCEMENT::IAnnouncer
   {
   public:
-    CAddonDll(const AddonProps &props);
-    CAddonDll(const cp_extension_t *ext);
+    CAddonDll(AddonProps props);
+
+    //FIXME: does shallow pointer copy. no copy assignment op
     CAddonDll(const CAddonDll<TheDll, TheStruct, TheProps> &rhs);
     virtual ~CAddonDll();
     virtual AddonPtr Clone() const;
@@ -90,21 +91,8 @@ namespace ADDON
   };
 
 template<class TheDll, typename TheStruct, typename TheProps>
-CAddonDll<TheDll, TheStruct, TheProps>::CAddonDll(const cp_extension_t *ext)
-  : CAddon(ext),
-    m_bIsChild(false)
-{
-  m_pStruct     = NULL;
-  m_initialized = false;
-  m_pDll        = NULL;
-  m_pInfo       = NULL;
-  m_pHelpers    = NULL;
-  m_needsavedsettings = false;
-}
-
-template<class TheDll, typename TheStruct, typename TheProps>
-CAddonDll<TheDll, TheStruct, TheProps>::CAddonDll(const AddonProps &props)
-  : CAddon(props),
+CAddonDll<TheDll, TheStruct, TheProps>::CAddonDll(AddonProps props)
+  : CAddon(std::move(props)),
     m_bIsChild(false)
 {
   m_pStruct     = NULL;

@@ -256,8 +256,7 @@ private:
 class CAddonLibrary : public CAddon
 {
 public:
-  CAddonLibrary(const AddonProps &props);
-  CAddonLibrary(const cp_extension_t *ext);
+  explicit CAddonLibrary(AddonProps props);
 
   virtual AddonPtr Clone() const;
 

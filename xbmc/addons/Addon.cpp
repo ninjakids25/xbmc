@@ -498,14 +498,8 @@ void OnPostUnInstall(const AddonPtr& addon)
  *
  */
 
-CAddonLibrary::CAddonLibrary(const cp_extension_t *ext)
-  : CAddon(ext)
-  , m_addonType(SetAddonType())
-{
-}
-
-CAddonLibrary::CAddonLibrary(const AddonProps& props)
-  : CAddon(props)
+CAddonLibrary::CAddonLibrary(AddonProps props)
+  : CAddon(std::move(props))
   , m_addonType(SetAddonType())
 {
 }
