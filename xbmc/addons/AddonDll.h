@@ -154,7 +154,7 @@ bool CAddonDll<TheDll, TheStruct, TheProps>::LoadDll()
   }
   else
   {
-    std::string extension = URIUtils::GetExtension(m_strLibName);
+    std::string extension = URIUtils::GetExtension(LibPath());
     strFileName = "special://temp/" + ID() + "-%03d" + extension;
     strFileName = CUtil::GetNextFilename(strFileName, 100);
 
@@ -171,7 +171,7 @@ bool CAddonDll<TheDll, TheStruct, TheProps>::LoadDll()
   if (!XFILE::CFile::Exists(strFileName))
   {
     std::string tempbin = getenv("XBMC_ANDROID_LIBS");
-    strFileName = tempbin + "/" + m_strLibName;
+    strFileName = tempbin + "/" + m_props.libname;
   }
 #endif
   if (!XFILE::CFile::Exists(strFileName))
@@ -182,7 +182,7 @@ bool CAddonDll<TheDll, TheStruct, TheProps>::LoadDll()
     strFileName = tempbin + strFileName;
     if (!XFILE::CFile::Exists(strFileName))
     {
-      CLog::Log(LOGERROR, "ADDON: Could not locate %s", m_strLibName.c_str());
+      CLog::Log(LOGERROR, "ADDON: Could not locate %s", m_props.libname.c_str());
       return false;
     }
   }
