@@ -924,47 +924,44 @@ AddonPtr CAddonMgr::AddonFromProps(AddonProps& addonProps)
 
 bool CAddonMgr::PlatformSupportsAddon(const cp_plugin_info_t *plugin) const
 {
-  if (!plugin || !plugin->num_extensions)
-    return false;
-  const cp_extension_t *metadata = GetExtension(plugin, "xbmc.addon.metadata"); //<! backword compatibilty
+  auto *metadata = CAddonMgr::GetInstance().GetExtension(plugin, "xbmc.addon.metadata");
   if (!metadata)
     metadata = CAddonMgr::GetInstance().GetExtension(plugin, "kodi.addon.metadata");
   if (!metadata)
-    return false;
+    return true; // not platforms specified. assume supported
 
   std::vector<std::string> platforms;
-  if (CAddonMgr::GetInstance().GetExtList(metadata->configuration, "platform", platforms))
+  if (!CAddonMgr::GetInstance().GetExtList(metadata->configuration, "platform", platforms) || platforms.empty())
+    return true; // assume no <platform> is equivalent to <platform>all</platform>
+
+  for (std::vector<std::string>::const_iterator platform = platforms.begin(); platform != platforms.end(); ++platform)
   {
-    for (std::vector<std::string>::const_iterator platform = platforms.begin(); platform != platforms.end(); ++platform)
-    {
-      if (*platform == "all")
-        return true;
+    if (*platform == "all")
+      return true;
 #if defined(TARGET_ANDROID)
-      if (*platform == "android")
+    if (*platform == "android")
 #elif defined(TARGET_LINUX) || defined(TARGET_FREEBSD)
-      if (*platform == "linux"
+    if (*platform == "linux"
 #if defined(TARGET_FREEBSD)
-        || *platform == "freebsd"
+      || *platform == "freebsd"
 #endif
-        )
+      )
 #elif defined(TARGET_WINDOWS) && defined(HAS_DX)
-      if (*platform == "windx" || *platform == "windows")
+    if (*platform == "windx" || *platform == "windows")
 #elif defined(TARGET_DARWIN_OSX)
 // Remove this after Frodo and add an architecture filter
 // in addition to platform.
 #if defined(__x86_64__)
-      if (*platform == "osx64" || *platform == "osx")
+    if (*platform == "osx64" || *platform == "osx")
 #else
-      if (*platform == "osx32" || *platform == "osx")
+    if (*platform == "osx32" || *platform == "osx")
 #endif
 #elif defined(TARGET_DARWIN_IOS)
-      if (*platform == "ios")
+    if (*platform == "ios")
 #endif
-        return true;
-    }
-    return false; // no <platform> works for us
+      return true;
   }
-  return true; // assume no <platform> is equivalent to <platform>all</platform>
+  return false; // no <platform> works for us
 }
 
 cp_cfg_element_t *CAddonMgr::GetExtElement(cp_cfg_element_t *base, const char *path)
