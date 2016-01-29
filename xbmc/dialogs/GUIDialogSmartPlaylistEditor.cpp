@@ -279,10 +279,9 @@ void CGUIDialogSmartPlaylistEditor::OnOrder()
 
 void CGUIDialogSmartPlaylistEditor::OnOrderDirection()
 {
-  if (m_playlist.m_orderDirection == SortOrderDescending)
-    m_playlist.m_orderDirection = SortOrderAscending;
-  else
-    m_playlist.m_orderDirection = SortOrderDescending;
+  CGUIMessage msg(GUI_MSG_ITEM_SELECTED, GetID(), CONTROL_ORDER_DIRECTION);
+  OnMessage(msg);
+  m_playlist.m_orderDirection = (SortOrder)msg.GetParam1();
   UpdateButtons();
 }
 
@@ -342,15 +341,6 @@ void CGUIDialogSmartPlaylistEditor::UpdateButtons()
   OnMessage(msg);
   SendMessage(GUI_MSG_ITEM_SELECT, GetID(), CONTROL_RULE_LIST, currentItem);
 
-  if (m_playlist.m_orderDirection != SortOrderDescending)
-  {
-    CONTROL_SELECT(CONTROL_ORDER_DIRECTION);
-  }
-  else
-  {
-    CONTROL_DESELECT(CONTROL_ORDER_DIRECTION);
-  }
-
   // sort out the order fields
   std::vector< std::pair<std::string, int> > labels;
   std::vector<SortBy> orders = CSmartPlaylistRule::GetOrders(m_playlist.GetType());
@@ -384,6 +374,12 @@ void CGUIDialogSmartPlaylistEditor::UpdateButtons()
     CONTROL_ENABLE(CONTROL_GROUP_BY);
     CONTROL_ENABLE_ON_CONDITION(CONTROL_GROUP_MIXED, CSmartPlaylistRule::CanGroupMix(currentGroup));
   }
+
+  // and now the order direction spinner
+  labels.clear();
+  labels.push_back(make_pair(g_localizeStrings.Get(21430), 1));
+  labels.push_back(make_pair(g_localizeStrings.Get(21431), 2));
+  SET_CONTROL_LABELS(CONTROL_ORDER_DIRECTION, m_playlist.m_orderDirection, &labels);
 }
 
 void CGUIDialogSmartPlaylistEditor::UpdateRuleControlButtons()
