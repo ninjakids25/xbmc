@@ -626,6 +626,16 @@ bool CAddonInstallJob::DoWork()
   //Enable it if it was previously disabled
   CAddonMgr::GetInstance().EnableAddon(m_addon->ID());
 
+  {
+    auto& addon = m_addon;
+    auto time = CDateTime::GetCurrentDateTime();
+    CJobManager::GetInstance().Submit([addon, time](){
+      CAddonDatabase db;
+      if (db.Open())
+        db.SetLastUpdated(addon->ID(), time);
+    });
+  }
+
   CEventLog::GetInstance().Add(
     EventPtr(new CAddonManagementEvent(m_addon, m_update ? 24065 : 24064)),
     !IsModal() && CSettings::GetInstance().GetBool(CSettings::SETTING_ADDONS_NOTIFICATIONS), false);
