@@ -161,6 +161,22 @@ private:
   bool m_lifo;
 };
 
+
+template<typename F>
+class CLambdaJob : public CJob
+{
+public:
+  CLambdaJob(F&& f) : m_f(std::forward<F>(f)) {};
+  bool DoWork() override
+  {
+    m_f();
+    return true;
+  }
+private:
+  F m_f;
+};
+
+
 /*!
  \ingroup jobs
  \brief Job Manager class for scheduling asynchronous jobs.
@@ -223,6 +239,12 @@ public:
    \sa CJob, IJobCallback, CancelJob()
    */
   unsigned int AddJob(CJob *job, IJobCallback *callback, CJob::PRIORITY priority = CJob::PRIORITY_LOW);
+
+  template<typename F>
+  unsigned int Submit(F&& job)
+  {
+    return AddJob(new CLambdaJob<F>(std::forward<F>(job)), nullptr);
+  }
 
   /*!
    \brief Cancel a job with the given id.
