@@ -648,7 +648,16 @@ const infomap listitem_labels[]= {{ "thumb",            LISTITEM_THUMB },
                                   { "imdbnumber",       LISTITEM_IMDBNUMBER },
                                   { "episodename",      LISTITEM_EPISODENAME },
                                   { "timertype",        LISTITEM_TIMERTYPE },
-                                  { "epgeventtitle",    LISTITEM_EPG_EVENT_TITLE }};
+                                  { "epgeventtitle",    LISTITEM_EPG_EVENT_TITLE },
+                                  { "addonname",        LISTITEM_ADDON_NAME },
+                                  { "addonversion",     LISTITEM_ADDON_VERSION },
+                                  { "addoncreator",     LISTITEM_ADDON_CREATOR },
+                                  { "addonsummary",     LISTITEM_ADDON_SUMMARY },
+                                  { "addondescription", LISTITEM_ADDON_DESCRIPTION },
+                                  { "addondisclaimer",  LISTITEM_ADDON_DISCLAIMER },
+                                  { "addonbroken",      LISTITEM_ADDON_BROKEN },
+                                  { "addontype",        LISTITEM_ADDON_TYPE },
+};
 
 const infomap visualisation[] =  {{ "locked",           VISUALISATION_LOCKED },
                                   { "preset",           VISUALISATION_PRESET },
@@ -5976,7 +5985,44 @@ std::string CGUIInfoManager::GetItemLabel(const CFileItem *item, int info, std::
         return item->GetPVRTimerInfoTag()->GetTypeAsString();
     }
     break;
+  case LISTITEM_ADDON_NAME:
+    if (item->HasAddonInfo())
+      return item->GetAddonInfo()->Name();
+    break;
+  case LISTITEM_ADDON_VERSION:
+    if (item->HasAddonInfo())
+      return item->GetAddonInfo()->Version().asString();
+    break;
+  case LISTITEM_ADDON_CREATOR:
+    if (item->HasAddonInfo())
+      return item->GetAddonInfo()->Author();
+    break;
+  case LISTITEM_ADDON_SUMMARY:
+    if (item->HasAddonInfo())
+      return item->GetAddonInfo()->Summary();
+    break;
+  case LISTITEM_ADDON_DESCRIPTION:
+    if (item->HasAddonInfo())
+      return item->GetAddonInfo()->Description();
+    break;
+  case LISTITEM_ADDON_DISCLAIMER:
+    if (item->HasAddonInfo())
+      return item->GetAddonInfo()->Disclaimer();
+    break;
+  case LISTITEM_ADDON_BROKEN:
+    if (item->HasAddonInfo())
+    {
+      if (item->GetAddonInfo()->Broken() == "DEPSNOTMET")
+        return g_localizeStrings.Get(24044);
+      return item->GetAddonInfo()->Broken();
+    }
+    break;
+  case LISTITEM_ADDON_TYPE:
+    if (item->HasAddonInfo())
+      return ADDON::TranslateType(item->GetAddonInfo()->Type(),true);
+    break;
   }
+
   return "";
 }
 
