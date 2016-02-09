@@ -80,8 +80,9 @@ private:
   std::vector<InfoTagType> m_itemTypes;
   CCriticalSection m_section;
 
+
   void FireJob();
-  void RegisterListProvider(bool hasLibraryContent);
+  void RegisterListProvider();
   bool UpdateURL();
   bool UpdateLimit();
   bool UpdateSort();

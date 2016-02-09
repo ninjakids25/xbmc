@@ -41,10 +41,11 @@
 #include "GUIUserMessages.h"              // for callback
 #include "utils/StringUtils.h"
 #include "dialogs/GUIDialogOK.h"
-#include "dialogs/GUIDialogExtendedProgressBar.h"
 #include "URL.h"
+#include "xbmc/interfaces/AnnouncementManager.h"
 
 #include <functional>
+
 
 using namespace XFILE;
 using namespace ADDON;
@@ -83,6 +84,7 @@ void CAddonInstaller::OnJobComplete(unsigned int jobID, bool success, CJob* job)
 
   CGUIMessage msg(GUI_MSG_NOTIFY_ALL, 0, 0, GUI_MSG_UPDATE);
   g_windowManager.SendThreadMessage(msg);
+  ANNOUNCEMENT::CAnnouncementManager::GetInstance().Announce(ANNOUNCEMENT::AddonLibrary, "xbmc", "OnInstall");
 }
 
 void CAddonInstaller::OnJobProgress(unsigned int jobID, unsigned int progress, unsigned int total, const CJob *job)
@@ -250,6 +252,8 @@ bool CAddonInstaller::DoInstall(const AddonPtr &addon, const RepositoryPtr& repo
   lock.Enter();
   JobMap::iterator i = m_downloadJobs.find(addon->ID());
   m_downloadJobs.erase(i);
+
+  ANNOUNCEMENT::CAnnouncementManager::GetInstance().Announce(ANNOUNCEMENT::AddonLibrary, "xbmc", "OnInstall");
 
   return result;
 }

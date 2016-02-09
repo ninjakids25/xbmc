@@ -28,14 +28,12 @@
 #include "filesystem/FavouritesDirectory.h"
 #include "guilib/GUIWindowManager.h"
 #include "interfaces/AnnouncementManager.h"
-#include "messaging/ApplicationMessenger.h"
 #include "music/MusicThumbLoader.h"
 #include "pictures/PictureThumbLoader.h"
 #include "settings/Settings.h"
 #include "threads/SingleLock.h"
 #include "utils/JobManager.h"
 #include "utils/SortUtils.h"
-#include "utils/URIUtils.h"
 #include "utils/Variant.h"
 #include "utils/XMLUtils.h"
 #include "video/VideoThumbLoader.h"
@@ -55,7 +53,7 @@ public:
   { }
   virtual ~CDirectoryJob() { }
 
-  virtual const char* GetType() const { return "directory"; }
+  const char* GetType() const override { return "directory"; }
   virtual bool operator==(const CJob *job) const
   {
     if (strcmp(job->GetType(),GetType()) == 0)
@@ -179,7 +177,7 @@ CDirectoryProvider::CDirectoryProvider(const TiXmlElement *element, int parentID
 
 CDirectoryProvider::~CDirectoryProvider()
 {
-  Reset(true);
+  CDirectoryProvider::Reset(true);
 }
 
 bool CDirectoryProvider::Update(bool forceRefresh)
@@ -211,9 +209,7 @@ bool CDirectoryProvider::Update(bool forceRefresh)
 void CDirectoryProvider::Announce(AnnouncementFlag flag, const char *sender, const char *message, const CVariant &data)
 {
   // we are only interested in library changes
-  if ((flag & (VideoLibrary | AudioLibrary)) == 0)
-    return;
-
+  if (flag == VideoLibrary || flag == AudioLibrary)
   {
     CSingleLock lock(m_section);
     // we don't need to refresh anything if there are no fitting
@@ -234,6 +230,11 @@ void CDirectoryProvider::Announce(AnnouncementFlag flag, const char *sender, con
         strcmp(message, "OnCleanFinished") == 0 ||
         strcmp(message, "OnUpdate") == 0 ||
         strcmp(message, "OnRemove") == 0)
+      m_updateState = PENDING;
+  }
+  else if (flag == AddonLibrary)
+  {
+    if (strcmp(message, "OnInstall") == 0)
       m_updateState = PENDING;
   }
 }
@@ -267,7 +268,7 @@ void CDirectoryProvider::Reset(bool immediately /* = false */)
     m_currentSort.sortOrder = SortOrderAscending;
     m_currentLimit = 0;
     m_updateState = OK;
-    RegisterListProvider(false);
+    RegisterListProvider();
   }
 }
 
@@ -320,14 +321,14 @@ void CDirectoryProvider::FireJob()
   m_jobID = CJobManager::GetInstance().AddJob(new CDirectoryJob(m_currentUrl, m_currentSort, m_currentLimit, m_parentID), this);
 }
 
-void CDirectoryProvider::RegisterListProvider(bool hasLibraryContent)
+void CDirectoryProvider::RegisterListProvider()
 {
-  if (hasLibraryContent && !m_isAnnounced)
+  if (!m_isAnnounced)
   {
     m_isAnnounced = true;
     CAnnouncementManager::GetInstance().AddAnnouncer(this);
   }
-  else if (!hasLibraryContent && m_isAnnounced)
+  else if (m_isAnnounced)
   {
     m_isAnnounced = false;
     CAnnouncementManager::GetInstance().RemoveAnnouncer(this);
@@ -342,8 +343,7 @@ bool CDirectoryProvider::UpdateURL()
 
   m_currentUrl = value;
 
-  // Register this provider only if we have library content
-  RegisterListProvider(URIUtils::IsLibraryContent(m_currentUrl));
+  RegisterListProvider();
 
   return true;
 }
