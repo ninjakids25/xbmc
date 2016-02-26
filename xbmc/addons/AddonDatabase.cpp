@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <iterator>
 
 #include "addons/AddonBuilder.h"
 #include "addons/AddonManager.h"
