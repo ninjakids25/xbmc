@@ -3298,7 +3298,7 @@ PlayBackRet CApplication::PlayFile(CFileItem item, const std::string& player, bo
   }
 
   std::string newPlayer;
-  if (bRestart)
+  if( bRestart )
   {
     // have to be set here due to playstack using this for starting the file
     options.starttime = item.m_lStartOffset / 75.0;
@@ -3941,16 +3941,17 @@ bool CApplication::WakeUpScreenSaverAndDPMS(bool bPowerOffKeyPressed /* = false 
   else
     result = WakeUpScreenSaver(bPowerOffKeyPressed);
 
+#ifdef TARGET_ANDROID
+  // Screensaver deactivated -> acquire wake lock
+  CXBMCApp::EnableWakeLock(true);
+#endif
+
   if(result)
   {
     // allow listeners to ignore the deactivation if it preceeds a powerdown/suspend etc
     CVariant data(CVariant::VariantTypeObject);
     data["shuttingdown"] = bPowerOffKeyPressed;
     CAnnouncementManager::GetInstance().Announce(GUI, "xbmc", "OnScreensaverDeactivated", data);
-#ifdef TARGET_ANDROID
-    // Screensaver deactivated -> acquire wake lock
-    CXBMCApp::EnableWakeLock(true);
-#endif
   }
 
   return result;
@@ -3988,12 +3989,13 @@ bool CApplication::WakeUpScreenSaver(bool bPowerOffKeyPressed /* = false */)
     m_iScreenSaveLock = 0;
     ResetScreenSaverTimer();
 
-    if (m_screenSaver->ID() == "visualization")
+    if (m_screenSaver->ID() == "visualization"  || m_screenSaver->ID() == "screensaver.xbmc.builtin.system")
     {
       // we can just continue as usual from vis mode
       return false;
     }
-    else if (m_screenSaver->ID() == "screensaver.xbmc.builtin.dim" || m_screenSaver->ID() == "screensaver.xbmc.builtin.black" || m_screenSaver->ID().empty())
+    else if (m_screenSaver->ID() == "screensaver.xbmc.builtin.dim" || m_screenSaver->ID() == "screensaver.xbmc.builtin.black"
+             || m_screenSaver->ID().empty())
       return true;
     else if (!m_screenSaver->ID().empty())
     { // we're in screensaver window
@@ -4098,7 +4100,7 @@ void CApplication::ActivateScreenSaver(bool forceType /*= false */)
   {
 #ifdef TARGET_ANDROID
     // Default screensaver activated -> release wake lock
-    CXBMCApp::EnableWakeLock(false);
+      CXBMCApp::EnableWakeLock(false);
 #endif
     return;
   }
