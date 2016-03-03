@@ -27,6 +27,8 @@
 #include "dialogs/GUIDialogContextMenu.h"
 
 
+using ContextMenuView = std::vector<std::shared_ptr<const IContextMenuItem>>;
+
 class CContextMenuManager
 {
 public:
@@ -34,6 +36,9 @@ public:
   static const CContextMenuItem MANAGE;
 
   static CContextMenuManager& GetInstance();
+
+  ContextMenuView GetItems(const CFileItem& item, const CContextMenuItem& root = MAIN,
+      bool includeAddons = true) const;
 
   /*!
    * \param id - id of the context button clicked on.
@@ -74,8 +79,18 @@ private:
   bool IsVisible(
     const CContextMenuItem& menuItem,
     const CContextMenuItem& root,
-    const CFileItemPtr& fileItem);
+    const CFileItem& fileItem) const;
 
-  std::vector<std::pair<unsigned int, CContextMenuItem>> m_items;
+  std::vector<std::pair<unsigned int, CContextMenuItem>> GetAddonMenus(const CFileItem& fileItem,
+      const CContextMenuItem& root = CContextMenuManager::MAIN) const;
+
+  CCriticalSection m_criticalSection;
+  std::vector<std::pair<unsigned int, CContextMenuItem>> m_addonItems;
+  std::vector<std::shared_ptr<IContextMenuItem>> m_items;
   unsigned int m_nextButtonId;
 };
+
+namespace contextmenu
+{
+  bool ShowFor(const CFileItemPtr& fileItem, const CContextMenuItem& root=CContextMenuManager::MAIN);
+}
