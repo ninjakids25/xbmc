@@ -52,6 +52,7 @@ set(HEADERS Addon.h
             AudioDecoder.h
             AudioEncoder.h
             ContextMenuAddon.h
+            ContextMenus.h
             DllAddon.h
             DllAudioDSP.h
             DllLibCPluff.h
