@@ -98,7 +98,7 @@ bool CGUIWindowVideoNav::OnAction(const CAction &action)
     {
       CVideoLibraryQueue::GetInstance().MarkAsWatched(pItem, pItem->GetVideoInfoTag()->m_playCount == 0);
       return true;
-    }
+  }
   }
   return CGUIWindowVideoBase::OnAction(action);
 }

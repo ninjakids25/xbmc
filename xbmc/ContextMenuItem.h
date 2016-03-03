@@ -27,6 +27,8 @@
 #include "addons/RepositoryUpdater.h"
 #include "addons/GUIDialogAddonInfo.h"
 #include "addons/GUIDialogAddonSettings.h"
+#include "guilib/GUIWindowManager.h"
+#include "video/windows/GUIWindowVideoNav.h"
 
 
 namespace ADDON
@@ -148,6 +150,31 @@ struct CCheckForUpdates : IContextMenuItem
     if (item->HasAddonInfo() && CAddonMgr::GetInstance().GetAddon(item->GetAddonInfo()->ID(), addon, ADDON_REPOSITORY))
     {
       CRepositoryUpdater::GetInstance().CheckForUpdates(std::static_pointer_cast<CRepository>(addon), true);
+      return true;
+    }
+    return false;
+  }
+};
+
+struct CTVShowInfo : IContextMenuItem
+{
+  std::string GetLabel(const CFileItem& item) const override
+  {
+    return g_localizeStrings.Get(20351);
+  }
+
+  bool IsVisible(const CFileItem& item) const override
+  {
+    return item.HasVideoInfoTag() && item.GetVideoInfoTag()->m_type == MediaTypeTvShow;
+  }
+
+  bool Execute(const CFileItemPtr& item) const override
+  {
+    auto window = static_cast<CGUIWindowVideoNav*>(g_windowManager.GetWindow(WINDOW_VIDEO_NAV));
+    if (window)
+    {
+      ADDON::ScraperPtr info;
+      window->OnItemInfo(item.get(), info);
       return true;
     }
     return false;
