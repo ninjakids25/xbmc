@@ -89,3 +89,70 @@ private:
   INFO::InfoPtr m_condition;
   ADDON::AddonPtr m_addon;
 };
+
+namespace contextmenu
+{
+namespace actions
+{
+
+struct CAddonInfo : IContextMenuItem
+{
+  std::string GetLabel(const CFileItem& item) const override { return g_localizeStrings.Get(24003); }
+
+  bool IsVisible(const CFileItem& item) const override
+  {
+    return item.HasAddonInfo();
+  }
+
+  bool Execute(const CFileItemPtr& item) const override
+  {
+    return CGUIDialogAddonInfo::ShowForItem(item);
+  }
+};
+
+struct CAddonSettings : IContextMenuItem
+{
+  std::string GetLabel(const CFileItem& item) const override { return g_localizeStrings.Get(24020); }
+
+  bool IsVisible(const CFileItem& item) const override
+  {
+    using namespace ADDON;
+    AddonPtr addon;
+    return item.HasAddonInfo()
+           && CAddonMgr::GetInstance().GetAddon(item.GetAddonInfo()->ID(), addon, ADDON_UNKNOWN, false)
+           && addon->HasSettings();
+  }
+
+  bool Execute(const CFileItemPtr& item) const override
+  {
+    using namespace ADDON;
+    AddonPtr addon;
+    return CAddonMgr::GetInstance().GetAddon(item->GetAddonInfo()->ID(), addon, ADDON_UNKNOWN, false)
+           && CGUIDialogAddonSettings::ShowAndGetInput(addon);
+  }
+};
+
+struct CCheckForUpdates : IContextMenuItem
+{
+  std::string GetLabel(const CFileItem& item) const override { return g_localizeStrings.Get(24034); }
+
+  bool IsVisible(const CFileItem& item) const override
+  {
+    return item.HasAddonInfo() && item.GetAddonInfo()->Type() == ADDON::ADDON_REPOSITORY;
+  }
+
+  bool Execute(const CFileItemPtr& item) const override
+  {
+    using namespace ADDON;
+    AddonPtr addon;
+    if (item->HasAddonInfo() && CAddonMgr::GetInstance().GetAddon(item->GetAddonInfo()->ID(), addon, ADDON_REPOSITORY))
+    {
+      CRepositoryUpdater::GetInstance().CheckForUpdates(std::static_pointer_cast<CRepository>(addon), true);
+      return true;
+    }
+    return false;
+  }
+};
+
+}
+}
