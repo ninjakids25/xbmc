@@ -1517,29 +1517,32 @@ void CGUIMediaWindow::SetupShares()
   }
 }
 
-bool CGUIMediaWindow::OnPopupMenu(int iItem)
+bool CGUIMediaWindow::OnPopupMenu(int itemIdx)
 {
-  // popup the context menu
-  // grab our context menu
+  if (itemIdx < 0 || itemIdx >= m_vecItems->Size())
+    return false;
+
+  auto item = m_vecItems->Get(itemIdx);
+  if (!item)
+    return false;
+
+  auto menuItems = CContextMenuManager::GetInstance().GetItems(*item, CContextMenuManager::MAIN, false);
+
   CContextButtons buttons;
-  GetContextButtons(iItem, buttons);
+  for (int i = 0; i < menuItems.size(); ++i)
+    buttons.Add(-i, menuItems[i]->GetLabel(*item));
 
-  if (buttons.size())
-  {
-    // mark the item
-    if (iItem >= 0 && iItem < m_vecItems->Size())
-      m_vecItems->Get(iItem)->Select(true);
+  const int legacyMenuStart = buttons.size();
+  GetContextButtons(itemIdx, buttons);
+  const int selected = CGUIDialogContextMenu::Show(buttons);
 
-    int choice = CGUIDialogContextMenu::ShowAndGetChoice(buttons);
+  if (selected < 0 || selected >= buttons.size())
+    return false;
 
-    // deselect our item
-    if (iItem >= 0 && iItem < m_vecItems->Size())
-      m_vecItems->Get(iItem)->Select(false);
+  if (selected >= legacyMenuStart)
+    return OnContextButton(itemIdx, static_cast<CONTEXT_BUTTON>(buttons[selected].first));
 
-    if (choice >= 0)
-      return OnContextButton(iItem, (CONTEXT_BUTTON)choice);
-  }
-  return false;
+  return menuItems[selected]->Execute(item);
 }
 
 void CGUIMediaWindow::GetContextButtons(int itemNumber, CContextButtons &buttons)
