@@ -13,6 +13,7 @@ set(SOURCES Bookmark.cpp
             VideoThumbLoader.cpp)
 
 set(HEADERS Bookmark.h
+            ContextMenus.h
             Episode.h
             FFmpegVideoDecoder.h
             GUIViewStateVideo.h
