@@ -24,9 +24,6 @@
 #include "addons/AddonManager.h"
 #include "addons/ContextMenuAddon.h"
 #include "addons/IAddon.h"
-#include "interfaces/generic/ScriptInvocationManager.h"
-#include "interfaces/python/ContextItemAddonInvoker.h"
-#include "interfaces/python/XBPython.h"
 #include "utils/log.h"
 
 using namespace ADDON;
@@ -117,7 +114,7 @@ bool CContextMenuManager::IsVisible(
 }
 
 void CContextMenuManager::AddVisibleItems(
-  const CFileItemPtr& fileItem, CContextButtons& list, const CContextMenuItem& root /* = CContextMenuItem::MAIN */)
+  const CFileItemPtr& fileItem, CContextButtons& list, const CContextMenuItem& root /* = CContextMenuItem::MAIN */) const
 {
   if (!fileItem)
     return;

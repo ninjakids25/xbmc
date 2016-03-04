@@ -56,7 +56,7 @@ public:
   void AddVisibleItems(
     const CFileItemPtr& item,
     CContextButtons& list,
-    const CContextMenuItem& root = MAIN);
+    const CContextMenuItem& root = MAIN) const;
 
   /*!
    * \brief Adds a context item to this manager.
