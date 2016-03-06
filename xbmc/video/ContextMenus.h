@@ -21,6 +21,7 @@
 
 #include "guilib/GUIWindowManager.h"
 #include "video/windows/GUIWindowVideoNav.h"
+#include "VideoLibraryQueue.h"
 
 namespace CONTEXTMENU
 {
@@ -68,4 +69,47 @@ struct CMovieInfo : CVideoInfo
 {
   CMovieInfo() : CVideoInfo(13346, MediaTypeMovie) {}
 };
+
+struct CMarkWatched : CStaticContextMenuAction
+{
+  CMarkWatched() : CStaticContextMenuAction(16103) {}
+  bool IsVisible(const CFileItem& item) const override
+  {
+    if (!item.HasVideoInfoTag())
+      return false;
+
+    if (item.m_bIsFolder) //Only allow db content to be updated recursively
+      return item.IsVideoDb();
+
+    return item.GetVideoInfoTag()->m_playCount == 0;
+  }
+
+  bool Execute(const CFileItemPtr& item) const override
+  {
+    CVideoLibraryQueue::GetInstance().MarkAsWatched(item, true);
+    return true;
+  }
+};
+
+struct CMarkUnWatched : CStaticContextMenuAction
+{
+  CMarkUnWatched() : CStaticContextMenuAction(16104) {}
+  bool IsVisible(const CFileItem& item) const override
+  {
+    if (!item.HasVideoInfoTag())
+      return false;
+
+    if (item.m_bIsFolder) //Only allow db content to be updated recursively
+      return item.IsVideoDb();
+
+    return item.GetVideoInfoTag()->m_playCount > 0;
+  }
+
+  bool Execute(const CFileItemPtr& item) const override
+  {
+    CVideoLibraryQueue::GetInstance().MarkAsWatched(item, false);
+    return true;
+  }
+};
+
 }
