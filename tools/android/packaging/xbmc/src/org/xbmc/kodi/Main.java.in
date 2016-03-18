@@ -1,30 +1,32 @@
-package org.xbmc.@APP_NAME_LC@;
+package org.xbmc.kodi;
 
 import android.app.NativeActivity;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Surface;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Handler;
-import org.xbmc.@APP_NAME_LC@.XBMCVideoView;
+import org.xbmc.kodi.XBMCVideoView;
 
 public class Main extends NativeActivity
 {
-  private static final String TAG = "@APP_NAME_LC@";
+  private static final String TAG = "kodi";
 
   private XBMCSettingsContentObserver mSettingsContentObserver;
-  private XBMCInputDeviceListener mInputDeviceListener;
   private XBMCVideoView mVideoView = null;
+  private XBMCJsonRPC mJsonRPC = null;
   private RelativeLayout mVideoLayout = null;
   private View thisView = null;
   private Handler handler = new Handler();
+  private Intent mNewIntent = null;
 
   native void _onNewIntent(Intent intent);
 
@@ -77,6 +79,12 @@ public class Main extends NativeActivity
     manager.unregisterMediaButtonEventReceiver(new ComponentName(getPackageName(), XBMCBroadcastReceiver.class.getName()));
   }
 
+  public void screenOn()
+  {
+    Window window = getWindow();
+    window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
@@ -88,7 +96,7 @@ public class Main extends NativeActivity
       System.loadLibrary("smbclient");
     }
     catch (UnsatisfiedLinkError e) {}
-    System.loadLibrary("@APP_NAME_LC@");
+    System.loadLibrary("kodi");
 
     super.onCreate(savedInstanceState);
     getWindow().setFormat(PixelFormat.TRANSPARENT);
@@ -103,11 +111,8 @@ public class Main extends NativeActivity
     mSettingsContentObserver = new XBMCSettingsContentObserver(this, new Handler());
     getApplicationContext().getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, mSettingsContentObserver );
 
-    // register the InputDeviceListener implementation
-    mInputDeviceListener = new XBMCInputDeviceListener();
-    InputManager manager = (InputManager) getSystemService(INPUT_SERVICE);
-    manager.registerInputDeviceListener(mInputDeviceListener, new Handler());
-
+    mJsonRPC = new XBMCJsonRPC();
+    
     thisView = getWindow().getDecorView();
     thisView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
           {
@@ -145,11 +150,8 @@ public class Main extends NativeActivity
   protected void onNewIntent(Intent intent)
   {
     super.onNewIntent(intent);
-    try {
-      _onNewIntent(intent);
-    } catch (UnsatisfiedLinkError e) {
-      Log.e("Main", "Native not registered");
-    }
+    // Delay until after Resume
+    mNewIntent = intent;
   }
 
   @Override
@@ -164,6 +166,9 @@ public class Main extends NativeActivity
   {
     super.onResume();
 
+    Window window = getWindow();
+    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
     if (android.os.Build.VERSION.SDK_INT >= 19) {
       // Immersive mode
 
@@ -177,17 +182,58 @@ public class Main extends NativeActivity
               | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
               | View.SYSTEM_UI_FLAG_FULLSCREEN
               | API_SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+      
+      
+      if (getPackageManager().hasSystemFeature("android.software.leanback"))
+      {
+        // Leanback
+
+        new Thread()
+        {
+          public void run()
+          {
+            try
+            {
+              sleep(10000);
+              mJsonRPC.updateLeanback(Main.this,
+                  "{\"jsonrpc\": \"2.0\", \"method\": \"VideoLibrary.GetMovies\", \"params\": { \"filter\": {\"field\": \"playcount\", \"operator\": \"is\", \"value\": \"0\"}, \"limits\": { \"start\" : 0, \"end\": 3}, \"properties\" : [\"imdbnumber\", \"title\", \"tagline\", \"thumbnail\", \"fanart\"], \"sort\": { \"order\": \"descending\", \"method\": \"dateadded\", \"ignorearticle\": true } }, \"id\": \"1\"}");
+            } catch (Exception e)
+            {
+              e.printStackTrace();
+            }
+          }
+        }.start();
+      }
+
+    }
+    
+    // New intent ?
+    if (mNewIntent != null)
+    {
+      try {
+        _onNewIntent(mNewIntent);
+      } catch (UnsatisfiedLinkError e) {
+        Log.e("Main", "Native not registered");
+      } finally {
+        mNewIntent = null;
+      }
     }
   }
 
   @Override
   public void onDestroy()
   {
-    // unregister the InputDeviceListener implementation
-    InputManager manager = (InputManager) getSystemService(INPUT_SERVICE);
-    manager.unregisterInputDeviceListener(mInputDeviceListener);
-
     getApplicationContext().getContentResolver().unregisterContentObserver(mSettingsContentObserver);
+    new Thread() {
+      public void run()
+      {
+        try
+        {
+          sleep(1000);
+          android.os.Process.killProcess(android.os.Process.myPid());
+        } catch (Exception e) {}
+      }
+    }.start();
     super.onDestroy();
   }
 
