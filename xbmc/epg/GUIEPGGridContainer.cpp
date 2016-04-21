@@ -136,7 +136,6 @@ CGUIEPGGridContainer::CGUIEPGGridContainer(const CGUIEPGGridContainer &other)
   m_gridHeight              = other.m_gridHeight;
   m_blockSize               = other.m_blockSize;
   m_analogScrollCount       = other.m_analogScrollCount;
-  m_item                    = other.m_item;
   m_lastItem                = other.m_lastItem;
   m_lastChannel             = other.m_lastChannel;
   m_scrollTime              = other.m_scrollTime;
@@ -146,9 +145,13 @@ CGUIEPGGridContainer::CGUIEPGGridContainer(const CGUIEPGGridContainer &other)
   m_channelScrollLastTime   = other.m_channelScrollLastTime;
   m_channelScrollSpeed      = other.m_channelScrollSpeed;
   m_channelScrollOffset     = other.m_channelScrollOffset;
-  m_gridModel               = other.m_gridModel;
-  m_updatedGridModel        = other.m_updatedGridModel;
-  m_outdatedGridModel       = other.m_outdatedGridModel;
+
+  m_gridModel.reset(new CGUIEPGGridContainerModel(*other.m_gridModel));
+  m_updatedGridModel.reset(new CGUIEPGGridContainerModel(*other.m_updatedGridModel));
+  m_outdatedGridModel.reset(new CGUIEPGGridContainerModel(*other.m_outdatedGridModel));
+
+  // pointer to grid model internal data.
+  m_item = GetItem(m_channelCursor);
 }
 
 void CGUIEPGGridContainer::Process(unsigned int currentTime, CDirtyRegionList &dirtyregions)
@@ -203,6 +206,7 @@ void CGUIEPGGridContainer::ProcessChannels(unsigned int currentTime, CDirtyRegio
   pos += drawOffset;
   end += cacheAfterChannel * m_channelLayout->Size(VERTICAL);
 
+  CFileItemPtr item;
   int current = chanOffset;// - cacheBeforeChannel;
   while (pos < end && m_gridModel->HasChannelItems())
   {
@@ -212,9 +216,9 @@ void CGUIEPGGridContainer::ProcessChannels(unsigned int currentTime, CDirtyRegio
     bool focused = (current == m_channelOffset + m_channelCursor);
     if (itemNo >= 0)
     {
-      CGUIListItemPtr item(m_gridModel->GetChannelItem(itemNo));
+      item = m_gridModel->GetChannelItem(itemNo);
       // process our item
-      ProcessItem(originChannel.x, pos, item.get(), m_lastItem, focused, m_channelLayout, m_focusedChannelLayout, currentTime, dirtyregions);
+      ProcessItem(originChannel.x, pos, item, m_lastItem, focused, m_channelLayout, m_focusedChannelLayout, currentTime, dirtyregions);
     }
     // increment our position
     pos += focused ? m_focusedChannelLayout->Size(VERTICAL) : m_channelLayout->Size(VERTICAL);
@@ -288,10 +292,10 @@ void CGUIEPGGridContainer::ProcessRuler(unsigned int currentTime, CDirtyRegionLi
     return;
 
   int rulerOffset = MathUtils::round_int(m_programmeScrollOffset / m_blockSize);
-  CGUIListItemPtr item(m_gridModel->GetRulerItem(0));
+  CFileItemPtr item(m_gridModel->GetRulerItem(0));
   item->SetLabel(m_gridModel->GetRulerItem(rulerOffset / m_rulerUnit + 1)->GetLabel2());
-  CGUIListItem* lastitem = NULL; // dummy pointer needed to be passed as reference to ProcessItem() method
-  ProcessItem(m_posX, m_posY, item.get(), lastitem, false, m_rulerLayout, m_rulerLayout, currentTime, dirtyregions, m_channelWidth);
+  CFileItemPtr lastitem; // dummy pointer needed to be passed as reference to ProcessItem() method
+  ProcessItem(m_posX, m_posY, item, lastitem, false, m_rulerLayout, m_rulerLayout, currentTime, dirtyregions, m_channelWidth);
 
   // render ruler items
   int cacheBeforeRuler, cacheAfterRuler;
@@ -323,7 +327,7 @@ void CGUIEPGGridContainer::ProcessRuler(unsigned int currentTime, CDirtyRegionLi
   while (pos < end && (rulerOffset / m_rulerUnit + 1) < m_gridModel->RulerItemsSize())
   {
     item = m_gridModel->GetRulerItem(rulerOffset / m_rulerUnit + 1);
-    ProcessItem(pos, originRuler.y, item.get(), lastitem, false, m_rulerLayout, m_rulerLayout, currentTime, dirtyregions, m_rulerWidth);
+    ProcessItem(pos, originRuler.y, item, lastitem, false, m_rulerLayout, m_rulerLayout, currentTime, dirtyregions, m_rulerWidth);
     pos += m_rulerWidth;
     rulerOffset += m_rulerUnit;
   }
@@ -402,7 +406,7 @@ void CGUIEPGGridContainer::ProcessProgrammeGrid(unsigned int currentTime, CDirty
 
   int channel = chanOffset;
 
-  CGUIListItemPtr item;
+  CFileItemPtr item;
   while (posB < endB && m_gridModel->HasChannelItems())
   {
     if (channel >= m_gridModel->ChannelItemsSize())
@@ -452,7 +456,7 @@ void CGUIEPGGridContainer::ProcessProgrammeGrid(unsigned int currentTime, CDirty
         m_gridModel->SetGridItemWidth(channel, block, m_gridModel->GetGridItemOriginWidth(channel, block) - truncateSize);
       }
 
-      ProcessItem(posA2, posB, item.get(), m_lastChannel, focused, m_programmeLayout, m_focusedProgrammeLayout, currentTime, dirtyregions, m_gridModel->GetGridItemWidth(channel, block));
+      ProcessItem(posA2, posB, item, m_lastChannel, focused, m_programmeLayout, m_focusedProgrammeLayout, currentTime, dirtyregions, m_gridModel->GetGridItemWidth(channel, block));
 
       // increment our X position
       posA2 += m_gridModel->GetGridItemWidth(channel, block); // assumes focused & unfocused layouts have equal length
@@ -594,7 +598,7 @@ void CGUIEPGGridContainer::RenderProgressIndicator()
   }
 }
 
-void CGUIEPGGridContainer::ProcessItem(float posX, float posY, CGUIListItem* item, CGUIListItem *&lastitem,
+void CGUIEPGGridContainer::ProcessItem(float posX, float posY, const CFileItemPtr &item, CFileItemPtr &lastitem,
   bool focused, CGUIListItemLayout* normallayout, CGUIListItemLayout* focusedlayout,
   unsigned int currentTime, CDirtyRegionList &dirtyregions, float resize /* = -1.0f */)
 {
@@ -630,7 +634,7 @@ void CGUIEPGGridContainer::ProcessItem(float posX, float posY, CGUIListItem* ite
       item->GetFocusedLayout()->SetFocusedItem(subItem ? subItem : 1);
     }
 
-    item->GetFocusedLayout()->Process(item, m_parentID, currentTime, dirtyregions);
+    item->GetFocusedLayout()->Process(item.get(), m_parentID, currentTime, dirtyregions);
     lastitem = item;
   }
   else
@@ -650,9 +654,9 @@ void CGUIEPGGridContainer::ProcessItem(float posX, float posY, CGUIListItem* ite
       item->GetFocusedLayout()->SetFocusedItem(0);
 
     if (item->GetFocusedLayout() && item->GetFocusedLayout()->IsAnimating(ANIM_TYPE_UNFOCUS))
-      item->GetFocusedLayout()->Process(item, m_parentID, currentTime, dirtyregions);
+      item->GetFocusedLayout()->Process(item.get(), m_parentID, currentTime, dirtyregions);
     else
-      item->GetLayout()->Process(item, m_parentID, currentTime, dirtyregions);
+      item->GetLayout()->Process(item.get(), m_parentID, currentTime, dirtyregions);
   }
   g_graphicsContext.RestoreOrigin();
 }
@@ -1658,9 +1662,9 @@ void CGUIEPGGridContainer::SetTimelineItems(const std::unique_ptr<CFileItemList>
     fBlockSize = m_blockSize;
   }
 
-  std::shared_ptr<CGUIEPGGridContainerModel> oldOutdatedGridModel;
-  std::shared_ptr<CGUIEPGGridContainerModel> oldUpdatedGridModel;
-  std::shared_ptr<CGUIEPGGridContainerModel> newUpdatedGridModel(new CGUIEPGGridContainerModel);
+  std::unique_ptr<CGUIEPGGridContainerModel> oldOutdatedGridModel;
+  std::unique_ptr<CGUIEPGGridContainerModel> oldUpdatedGridModel;
+  std::unique_ptr<CGUIEPGGridContainerModel> newUpdatedGridModel(new CGUIEPGGridContainerModel);
   // can be very expensive. never call with lock acquired.
   newUpdatedGridModel->Refresh(items, gridStart, gridEnd, iRulerUnit, iBlocksPerPage, fBlockSize);
 
