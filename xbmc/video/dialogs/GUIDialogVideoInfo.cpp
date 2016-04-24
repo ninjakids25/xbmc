@@ -2033,12 +2033,12 @@ bool CGUIDialogVideoInfo::OnGetFanart(const CFileItemPtr &videoItem)
   return true;
 }
 
-void CGUIDialogVideoInfo::ShowFor(const CFileItem& item)
+void CGUIDialogVideoInfo::ShowFor(CFileItem item)
 {
   auto window = static_cast<CGUIWindowVideoNav*>(g_windowManager.GetWindow(WINDOW_VIDEO_NAV));
   if (window)
   {
     ADDON::ScraperPtr info;
-    window->OnItemInfo(item, info);
+    window->OnItemInfo(&item, info);
   }
 }
