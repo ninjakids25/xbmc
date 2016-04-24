@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.Choreographer;
 import android.view.View;
 import android.view.Surface;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
@@ -23,6 +25,7 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
   private XBMCSettingsContentObserver mSettingsContentObserver;
   private XBMCInputDeviceListener mInputDeviceListener;
   private XBMCVideoView mVideoView = null;
+  private XBMCJsonRPC mJsonRPC = null;
   private RelativeLayout mVideoLayout = null;
   private View thisView = null;
   private Handler handler = new Handler();
@@ -66,7 +69,7 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
       }
     });
   }
-  
+
   public void registerMediaButtonEventReceiver()
   {
     AudioManager manager = (AudioManager) getSystemService(AUDIO_SERVICE);
@@ -77,6 +80,12 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
   {
     AudioManager manager = (AudioManager) getSystemService(AUDIO_SERVICE);
     manager.unregisterMediaButtonEventReceiver(new ComponentName(getPackageName(), XBMCBroadcastReceiver.class.getName()));
+  }
+
+  public void screenOn()
+  {
+    Window window = getWindow();
+    window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
   }
 
   @Override
@@ -109,6 +118,8 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
     mInputDeviceListener = new XBMCInputDeviceListener();
     InputManager manager = (InputManager) getSystemService(INPUT_SERVICE);
     manager.registerInputDeviceListener(mInputDeviceListener, new Handler());
+
+    mJsonRPC = new XBMCJsonRPC();
 
     thisView = getWindow().getDecorView();
     thisView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
@@ -151,7 +162,7 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
       _onNewIntent(intent);
     } catch (UnsatisfiedLinkError e) {
       Log.e("Main", "Native not registered");
-    }
+  }
   }
 
   @Override
@@ -182,6 +193,47 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
               | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
               | View.SYSTEM_UI_FLAG_FULLSCREEN
               | API_SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
+
+      if (getPackageManager().hasSystemFeature("android.software.leanback"))
+      {
+        // Leanback
+
+        new Thread()
+        {
+          public void run()
+          {
+            try
+            {
+              sleep(10000);
+              mJsonRPC.updateLeanback(Main.this);
+            } catch (Exception e)
+            {
+              e.printStackTrace();
+            }
+          }
+        }.start();
+      }
+
+    }
+
+    // New intent ?
+    if (mNewIntent != null)
+    {
+      handler.postDelayed(new Runnable()
+        {
+          @Override
+          public void run()
+          {
+            try {
+              _onNewIntent(mNewIntent);
+            } catch (UnsatisfiedLinkError e) {
+              Log.e("Main", "Native not registered");
+            } finally {
+              mNewIntent = null;
+            }
+          }
+        }, 500);
     }
   }
 
@@ -190,7 +242,7 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
   {
     super.onPause();
   }
-  
+
   public void onDestroy()
   {
     // unregister the InputDeviceListener implementation
@@ -198,9 +250,19 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
     manager.unregisterInputDeviceListener(mInputDeviceListener);
 
     getApplicationContext().getContentResolver().unregisterContentObserver(mSettingsContentObserver);
+    new Thread() {
+      public void run()
+      {
+        try
+        {
+          sleep(1000);
+          android.os.Process.killProcess(android.os.Process.myPid());
+        } catch (Exception e) {}
+      }
+    }.start();
     super.onDestroy();
   }
-  
+
   @Override
   public void doFrame(long frameTimeNanos)
   {

@@ -1,4 +1,5 @@
 APP_NAME Kodi
+APP_PACKAGE org.xbmc.kodi
 COMPANY_NAME XBMC-Foundation
 WEBSITE http://kodi.tv
 VERSION_MAJOR 17
