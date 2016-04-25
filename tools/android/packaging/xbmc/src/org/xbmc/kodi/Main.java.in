@@ -31,6 +31,7 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
   private Handler handler = new Handler();
 
   native void _onNewIntent(Intent intent);
+  native void _onActivityResult(int requestCode, int resultCode, Intent resultData);
   native void _doFrame(long frameTimeNanos);
 
   public Main()
@@ -162,7 +163,7 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
       _onNewIntent(intent);
     } catch (UnsatisfiedLinkError e) {
       Log.e("Main", "Native not registered");
-  }
+    }
   }
 
   @Override
@@ -231,7 +232,7 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
               Log.e("Main", "Native not registered");
             } finally {
               mNewIntent = null;
-            }
+  }
           }
         }, 500);
     }
@@ -241,6 +242,13 @@ public class Main extends NativeActivity implements Choreographer.FrameCallback
   public void onPause()
   {
     super.onPause();
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode,
+      Intent resultData)
+  {
+    _onActivityResult(requestCode, resultCode, resultData);
   }
 
   public void onDestroy()
