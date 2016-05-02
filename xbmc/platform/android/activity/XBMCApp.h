@@ -181,8 +181,6 @@ private:
 
   static CVideoSyncAndroid* m_syncImpl;
 
-  void XBMC_Pause(bool pause);
-  void XBMC_Stop();
   bool XBMC_DestroyDisplay();
   bool XBMC_SetupDisplay();
 };
