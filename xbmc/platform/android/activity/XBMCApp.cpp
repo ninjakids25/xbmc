@@ -104,6 +104,7 @@ CJNIWakeLock *CXBMCApp::m_wakeLock = NULL;
 ANativeWindow* CXBMCApp::m_window = NULL;
 int CXBMCApp::m_batteryLevel = 0;
 bool CXBMCApp::m_hasFocus = false;
+bool CXBMCApp::m_isResumed = false;
 bool CXBMCApp::m_headsetPlugged = false;
 IInputDeviceCallbacks* CXBMCApp::m_inputDeviceCallbacks = nullptr;
 IInputDeviceEventHandler* CXBMCApp::m_inputDeviceEventHandler = nullptr;
@@ -170,6 +171,7 @@ void CXBMCApp::onResume()
   CJNIIntentFilter intentFilter;
   intentFilter.addAction("android.intent.action.BATTERY_CHANGED");
   intentFilter.addAction("android.intent.action.SCREEN_ON");
+  intentFilter.addAction("android.intent.action.SCREEN_OFF");
   registerReceiver(*this, intentFilter);
 
   if (!g_application.IsInScreenSaver())
@@ -187,6 +189,8 @@ void CXBMCApp::onResume()
     CSingleLock lock(m_applicationsMutex);
     m_applications.clear();
   }
+
+  m_isResumed = true;
 }
 
 void CXBMCApp::onPause()
@@ -210,6 +214,7 @@ void CXBMCApp::onPause()
 #endif
 
   EnableWakeLock(false);
+  m_isResumed = false;
 }
 
 void CXBMCApp::onStop()
@@ -367,11 +372,6 @@ bool CXBMCApp::ReleaseAudioFocus()
   return true;
 }
 
-bool CXBMCApp::HasFocus()
-{
-  return m_hasFocus;
-}
-
 bool CXBMCApp::IsHeadsetPlugged()
 {
   return m_headsetPlugged;
@@ -486,7 +486,7 @@ int CXBMCApp::android_printf(const char *format, ...)
 
 void CXBMCApp::BringToFront()
 {
-  if (!m_hasFocus)
+  if (!m_isResumed)
   {
     CLog::Log(LOGERROR, "CXBMCApp::BringToFront");
     StartActivity(getPackageName());
