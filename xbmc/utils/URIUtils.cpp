@@ -213,15 +213,7 @@ void URIUtils::Split(const std::string& strFileNameAndPath,
   strFileName = strFileNameAndPath.substr(i+1);
 
   // ignore options
-  i = strFileName.size() - 1;
-  while (i > 0)
-  {
-    char ch = strFileName[i];
-    if (ch == '?') break;
-    else i--;
-  }
-  if (i > 0)
-    strFileName = strFileName.substr(0, i);
+  strFileName = strFileName.substr(0, strFileName.find_first_of('?'));
 }
 
 std::vector<std::string> URIUtils::SplitPath(const std::string& strPath)
