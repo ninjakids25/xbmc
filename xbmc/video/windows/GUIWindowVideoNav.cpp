@@ -145,7 +145,7 @@ bool CGUIWindowVideoNav::OnMessage(CGUIMessage& message)
             if (url.GetOption("showinfo") == "true")
             {
               ADDON::ScraperPtr scrapper;
-              OnItemInfo(pItem.get(), scrapper);
+              OnItemInfo(*pItem, scrapper);
             }
             break;
           }
@@ -194,7 +194,7 @@ bool CGUIWindowVideoNav::OnMessage(CGUIMessage& message)
             item->SetPath(item->GetVideoInfoTag()->m_strFileNameAndPath);
           }
           ADDON::ScraperPtr scrapper;
-          OnItemInfo(item, scrapper);
+          OnItemInfo(*item, scrapper);
         }
       }
 
@@ -809,17 +809,17 @@ void CGUIWindowVideoNav::PlayItem(int iItem)
   CGUIWindowVideoBase::PlayItem(iItem);
 }
 
-void CGUIWindowVideoNav::OnItemInfo(CFileItem* fileItem, ADDON::ScraperPtr& scraper)
+void CGUIWindowVideoNav::OnItemInfo(const CFileItem& fileItem, ADDON::ScraperPtr& scraper)
 {
   if (!scraper || scraper->Content() == CONTENT_NONE)
   {
     m_database.Open(); // since we can be called from the music library without being inited
-    if (fileItem->IsVideoDb())
-      scraper = m_database.GetScraperForPath(fileItem->GetVideoInfoTag()->m_strPath);
+    if (fileItem.IsVideoDb())
+      scraper = m_database.GetScraperForPath(fileItem.GetVideoInfoTag()->m_strPath);
     else
     {
       std::string strPath,strFile;
-      URIUtils::Split(fileItem->GetPath(),strPath,strFile);
+      URIUtils::Split(fileItem.GetPath(),strPath,strFile);
       scraper = m_database.GetScraperForPath(strPath);
     }
     m_database.Close();

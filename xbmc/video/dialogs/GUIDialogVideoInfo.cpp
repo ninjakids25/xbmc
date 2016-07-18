@@ -2039,6 +2039,6 @@ void CGUIDialogVideoInfo::ShowFor(CFileItem item)
   if (window)
   {
     ADDON::ScraperPtr info;
-    window->OnItemInfo(&item, info);
+    window->OnItemInfo(item, info);
   }
 }
