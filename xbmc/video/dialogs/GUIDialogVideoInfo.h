@@ -66,7 +66,7 @@ public:
 
   static std::string GetLocalizedVideoType(const std::string &strType);
 
-  static void ShowFor(CFileItem item);
+  static void ShowFor(const CFileItem& item);
 
 protected:
   virtual void OnInitWindow();
