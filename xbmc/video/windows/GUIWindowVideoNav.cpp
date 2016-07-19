@@ -22,7 +22,6 @@
 #include "GUIWindowVideoNav.h"
 #include "utils/FileUtils.h"
 #include "Util.h"
-#include "PlayListPlayer.h"
 #include "GUIPassword.h"
 #include "filesystem/MultiPathDirectory.h"
 #include "filesystem/VideoDatabaseDirectory.h"
@@ -130,67 +129,30 @@ bool CGUIWindowVideoNav::OnMessage(CGUIMessage& message)
       if (!CGUIWindowVideoBase::OnMessage(message))
         return false;
 
+      //Have we been called with a parameter attached?
       if (message.GetStringParam(0) != "")
       {
-        CURL url(message.GetStringParam(0));
+        auto path = message.GetStringParam(0);
+        CURL url(path);
 
-        int i = 0;
-        for (; i < m_vecItems->Size(); i++)
+        for (int i = 0; i < m_vecItems->Size(); i++)
         {
-          CFileItemPtr pItem = m_vecItems->Get(i);
-          if (URIUtils::PathEquals(pItem->GetPath(), message.GetStringParam(0), true, true))
+          auto pItem = m_vecItems->Get(i);
+          if (URIUtils::PathEquals(pItem->GetPath(), path, true, true))
           {
+            //Highlights the item in our view
             m_viewControl.SetSelectedItem(i);
-            i = -1;
-            if (url.GetOption("showinfo") == "true")
-            {
-              ADDON::ScraperPtr scrapper;
-              OnItemInfo(*pItem, scrapper);
-            }
             break;
           }
         }
-        if (i >= m_vecItems->Size() && url.GetOption("showinfo") == "true")
+        if (url.GetOption("showinfo") == "true")
         {
-          std::string path = message.GetStringParam(0);
-          CFileItem item = CFileItem(path, URIUtils::HasSlashAtEnd(path));
+          //This needs to also be able to handle movies/shows that have been set as watched and are hidden/not in m_vecItems
+          //So this is deliberately not part of the above for loop and not depending on pItem for OnItemInfo
+          auto item = CFileItem(path, URIUtils::HasSlashAtEnd(path));
           if (item.IsVideoDb())
           {
-            auto retrieveTag = [](const std::string& content, const std::string& url)
-            {
-              CVideoInfoTag tag;
-
-              std::string strFileName = URIUtils::GetFileName(url);
-              if (strFileName.empty())
-                return tag;
-
-              URIUtils::RemoveExtension(strFileName);
-              if (!StringUtils::IsNaturalNumber(strFileName))
-                return tag;
-              long idDb = atol(strFileName.c_str());
-
-              VIDEODB_CONTENT_TYPE type;
-              if (content == "movies" || content == "recentlyaddedmovies")
-                type = VIDEODB_CONTENT_MOVIES;
-              else if (content == "tvshows")
-                type = VIDEODB_CONTENT_TVSHOWS;
-              else if (content == "episodes" || content == "recentlyaddedepisodes")
-                type = VIDEODB_CONTENT_EPISODES;
-              else if (content == "musicvideos" || content == "recentlyaddedmusicvideos")
-                type = VIDEODB_CONTENT_MUSICVIDEOS;
-              else
-                return tag;
-
-              CVideoDatabase videoDatabase;
-              if (!videoDatabase.Open())
-                return tag;
-
-              tag = videoDatabase.GetDetailsByTypeAndId(type, idDb);
-
-              return tag;
-            };
-
-            *(item.GetVideoInfoTag()) = retrieveTag(m_vecItems->GetContent(), item.GetPath());
+            *item.GetVideoInfoTag() = RetrieveTag(m_vecItems->GetContent(), item.GetPath());
             item.SetPath(item.GetVideoInfoTag()->m_strFileNameAndPath);
           }
           ADDON::ScraperPtr scrapper;
@@ -265,6 +227,38 @@ bool CGUIWindowVideoNav::OnMessage(CGUIMessage& message)
   }
   return CGUIWindowVideoBase::OnMessage(message);
 }
+
+CVideoInfoTag CGUIWindowVideoNav::RetrieveTag(const std::string& content, const std::string& url) const
+{
+  CVideoInfoTag tag;
+
+  auto strFileName = URIUtils::GetFileName(url);
+  if (strFileName.empty())
+    return tag;
+
+  URIUtils::RemoveExtension(strFileName);
+  if (!StringUtils::IsNaturalNumber(strFileName))
+    return tag;
+  long idDb = atol(strFileName.c_str());
+
+  VIDEODB_CONTENT_TYPE type;
+  if (content == "movies" || content == "recentlyaddedmovies")
+    type = VIDEODB_CONTENT_MOVIES;
+  else if (content == "tvshows")
+    type = VIDEODB_CONTENT_TVSHOWS;
+  else if (content == "episodes" || content == "recentlyaddedepisodes")
+    type = VIDEODB_CONTENT_EPISODES;
+  else if (content == "musicvideos" || content == "recentlyaddedmusicvideos")
+    type = VIDEODB_CONTENT_MUSICVIDEOS;
+  else
+    return tag;
+
+  CVideoDatabase videoDatabase;
+  if (!videoDatabase.Open())
+    return tag;
+
+  return videoDatabase.GetDetailsByTypeAndId(type, idDb);
+};
 
 SelectFirstUnwatchedItem CGUIWindowVideoNav::GetSettingSelectFirstUnwatchedItem()
 {
