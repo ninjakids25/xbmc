@@ -153,8 +153,8 @@ bool CGUIWindowVideoNav::OnMessage(CGUIMessage& message)
         if (i >= m_vecItems->Size() && url.GetOption("showinfo") == "true")
         {
           std::string path = message.GetStringParam(0);
-          CFileItem* item = new CFileItem(path, URIUtils::HasSlashAtEnd(path));
-          if (item->IsVideoDb())
+          CFileItem item = CFileItem(path, URIUtils::HasSlashAtEnd(path));
+          if (item.IsVideoDb())
           {
             auto retrieveTag = [](const std::string& content, const std::string& url)
             {
@@ -190,11 +190,11 @@ bool CGUIWindowVideoNav::OnMessage(CGUIMessage& message)
               return tag;
             };
 
-            *(item->GetVideoInfoTag()) = retrieveTag(m_vecItems->GetContent(), item->GetPath());
-            item->SetPath(item->GetVideoInfoTag()->m_strFileNameAndPath);
+            *(item.GetVideoInfoTag()) = retrieveTag(m_vecItems->GetContent(), item.GetPath());
+            item.SetPath(item.GetVideoInfoTag()->m_strFileNameAndPath);
           }
           ADDON::ScraperPtr scrapper;
-          OnItemInfo(*item, scrapper);
+          OnItemInfo(item, scrapper);
         }
       }
 
