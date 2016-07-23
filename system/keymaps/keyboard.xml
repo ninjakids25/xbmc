@@ -311,7 +311,7 @@
       <m>OSD</m>
       <menu>OSD</menu>
       <i>Info</i>
-      <o>CodecInfo</o>
+      <o>PlayerProcessInfo</o>
       <z>AspectRatio</z>
       <zoom>AspectRatio</zoom>
       <t>ShowSubtitles</t>
@@ -343,7 +343,7 @@
       <f>FastForward</f>
       <r>Rewind</r>
       <period>StepForward</period>
-      <o>CodecInfo</o>
+      <o>PlayerProcessInfo</o>
       <i>Back</i>
       <d mod="ctrl">Back</d>
       <m>OSD</m>
@@ -380,7 +380,7 @@
       <right>StepForward</right>
       <up>SkipNext</up>
       <down>SkipPrevious</down>
-      <o>CodecInfo</o>
+      <o>PlayerProcessInfo</o>
       <l>LockPreset</l>
       <escape>FullScreen</escape>
       <g>ActivateWindow(PVROSDGuide)</g>
@@ -396,7 +396,7 @@
       <m>Back</m>
       <menu>Back</menu>
       <i>Info</i>
-      <o>CodecInfo</o>
+      <o>PlayerProcessInfo</o>
       <p>ActivateWindow(VisualisationPresetList)</p>
       <v>Addon.Default.OpenSettings(xbmc.player.musicviz)</v>
       <text>Addon.Default.OpenSettings(xbmc.player.musicviz)</text>
@@ -411,7 +411,7 @@
       <comma>SkipPrevious</comma>
       <m>Back</m>
       <i>Info</i>
-      <o>CodecInfo</o>
+      <o>PlayerProcessInfo</o>
       <p>Back</p>
       <v>Back</v>
       <text>Back</text>
@@ -431,7 +431,7 @@
       <eight>ZoomLevel8</eight>
       <nine>ZoomLevel9</nine>
       <i>Info</i>
-      <o>CodecInfo</o>
+      <o>PlayerProcessInfo</o>
       <period>NextPicture</period>
       <comma>PreviousPicture</comma>
       <plus>ZoomIn</plus>
@@ -463,7 +463,7 @@
       <menu>Back</menu>
       <g mod="ctrl">Back</g> <!-- MCE Guide button -->
       <i>Info</i>
-      <o>CodecInfo</o>
+      <o>PlayerProcessInfo</o>
     </keyboard>
   </VideoOSD>
   <VideoMenu>
@@ -473,7 +473,7 @@
       <m>OSD</m>
       <menu>OSD</menu>
       <i>Info</i>
-      <o>CodecInfo</o>
+      <o>PlayerProcessInfo</o>
       <z>AspectRatio</z>
       <zoom>AspectRatio</zoom>
       <t>ShowSubtitles</t>
@@ -489,13 +489,13 @@
   <OSDVideoSettings>
     <keyboard>
       <i>Info</i>
-      <o>CodecInfo</o>
+      <o>PlayerProcessInfo</o>
     </keyboard>
   </OSDVideoSettings>
   <OSDAudioSettings>
     <keyboard>
       <i>Info</i>
-      <o>CodecInfo</o>
+      <o>PlayerProcessInfo</o>
     </keyboard>
   </OSDAudioSettings>
   <VideoBookmarks>
