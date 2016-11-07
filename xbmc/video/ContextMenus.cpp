@@ -24,6 +24,9 @@
 #include "Util.h"
 #include "video/dialogs/GUIDialogVideoInfo.h"
 #include "video/windows/GUIWindowVideoBase.h"
+#include "filesystem/FavouritesDirectory.h"
+#include "utils/StringUtils.h"
+#include "utils/URIUtils.h"
 
 
 namespace CONTEXTMENU
@@ -167,5 +170,27 @@ bool CPlay::Execute(const CFileItemPtr& itemIn) const
   SetPathAndPlay(item);
   return true;
 };
+
+
+std::string CFavorite::GetLabel(const CFileItem& item) const
+{
+  return g_localizeStrings.Get(XFILE::CFavouritesDirectory::IsFavourite(std::make_shared<CFileItem>(item).get(),
+    g_windowManager.GetActiveWindowID()) ? 14077 : 14076); // Add/Remove Favourite
+}
+
+bool CFavorite::IsVisible(const CFileItem& item) const
+{
+  //! @todo FAVOURITES Conditions on masterlock and localisation
+  return !item.IsParentFolder() && !item.IsPath("add") && !item.IsPath("newplaylist://") &&
+    !URIUtils::IsProtocol(item.GetPath(), "newsmartplaylist") && !URIUtils::IsProtocol(item.GetPath(), "newtag") &&
+    !URIUtils::IsProtocol(item.GetPath(), "musicsearch") && !URIUtils::IsProtocol(item.GetPath(), "favourites") &&
+    !StringUtils::StartsWith(item.GetPath(), "pvr://guide/") && !StringUtils::StartsWith(item.GetPath(), "pvr://timers/");
+}
+
+bool CFavorite::Execute(const CFileItemPtr& item) const
+{
+  return XFILE::CFavouritesDirectory::AddOrRemove(item.get(), g_windowManager.GetActiveWindowID());
+};
+
 
 }
