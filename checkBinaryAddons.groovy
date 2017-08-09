@@ -1,7 +1,7 @@
 echo 'Checking binary addons'
 
-def pathesFailure = [manager.build.workspace.toString(),'cmake','addons','.failure']
-def pathesSuccess = [manager.build.workspace.toString(),'cmake','addons','.success']
+def pathesFailure = [WORKSPACE,'cmake','addons','.failure']
+def pathesSuccess = [WORKSPACE,'cmake','addons','.success']
 
 echo 'Checkpoint 1'
 
