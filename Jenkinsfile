@@ -35,6 +35,7 @@ pipeline {
                 parallel Windows32: {
                     node('win32') {
                         checkout scm
+                        load 'checkBinaryAddons.groovy'
                         bat '%WORKSPACE%\\tools\\buildsteps\\windows\\win32\\prepare-env.bat'
                         bat '%WORKSPACE%\\tools\\buildsteps\\windows\\win32\\download-dependencies.bat'
                         bat '%WORKSPACE%\\tools\\buildsteps\\windows\\win32\\download-msys2.bat'
