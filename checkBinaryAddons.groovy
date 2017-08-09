@@ -5,8 +5,8 @@ def pathesSuccess = [WORKSPACE,'cmake','addons','.success']
 
 echo 'Checkpoint 1'
 
-def binary_addons_failed = new hudson.FilePath(manager.build.workspace.channel, pathesFailure.join(File.separator))
-def binary_addons_succeeded = new hudson.FilePath(manager.build.workspace.channel, pathesSuccess.join(File.separator))
+def binary_addons_failed = new hudson.FilePath(pathesFailure.join(File.separator))
+def binary_addons_succeeded = new hudson.FilePath(pathesSuccess.join(File.separator))
 
 echo 'Checkpoint 2'
 
