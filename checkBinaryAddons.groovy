@@ -3,8 +3,12 @@ echo 'Checking binary addons'
 def pathesFailure = [manager.build.workspace.toString(),'cmake','addons','.failure']
 def pathesSuccess = [manager.build.workspace.toString(),'cmake','addons','.success']
 
+echo 'Checkpoint 1'
+
 def binary_addons_failed = new hudson.FilePath(manager.build.workspace.channel, pathesFailure.join(File.separator))
 def binary_addons_succeeded = new hudson.FilePath(manager.build.workspace.channel, pathesSuccess.join(File.separator))
+
+echo 'Checkpoint 2'
 
 if ( binary_addons_succeeded != null && binary_addons_succeeded.exists() ) {
     manager.listener.logger.println "GROOVY: binary addons succeeded marker exists!"
@@ -16,6 +20,8 @@ if ( binary_addons_succeeded != null && binary_addons_succeeded.exists() ) {
     }
     summary.appendText("</ul>", false)
 }
+
+echo 'Checkpoint 3'
 
 if ( binary_addons_failed != null && binary_addons_failed.exists() ) {
     manager.listener.logger.println "GROOVY: binary addons failed marker exists!"
