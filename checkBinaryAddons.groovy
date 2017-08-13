@@ -1,7 +1,7 @@
 echo 'Checking binary addons'
 
-def pathesFailure = 'cmake/addons.failure'
-def pathesSuccess = 'cmake/addons.success'
+def pathesFailure = 'cmake/addons/.failure'
+def pathesSuccess = 'cmake/addons/.success'
 
 echo 'Checkpoint 2'
 
