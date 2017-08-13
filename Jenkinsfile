@@ -35,7 +35,6 @@ pipeline {
                 parallel Windows32: {
                     node('win32') {
                         checkout scm
-                        load 'checkBinaryAddons.groovy'
                         bat '%WORKSPACE%\\tools\\buildsteps\\windows\\win32\\prepare-env.bat'
                         bat '%WORKSPACE%\\tools\\buildsteps\\windows\\win32\\download-dependencies.bat'
                         bat '%WORKSPACE%\\tools\\buildsteps\\windows\\win32\\download-msys2.bat'
@@ -77,6 +76,30 @@ pipeline {
                         echo 'SSH Publish'
                     }
                 },
+                AndroidArm: {
+                    node('android') {
+                        ansiColor('xterm') {
+                            checkout scm
+                            sh '. $WORKSPACE/tools/buildsteps/android/prepare-depends'
+                            sh '. $WORKSPACE/tools/buildsteps/android/configure-depends'
+                            sh '. $WORKSPACE/tools/buildsteps/android/make-depends'
+                            // will evaluate ${BUILD_BINARY_ADDONS} internally
+                            sh '. $WORKSPACE/tools/buildsteps/android/prepare-xbmc'
+                            sh '''if [ "''' + params.RUN_TESTS + '''" == "true" ]
+                            then
+                            export CONFIG_EXTRA=" --enable-gtest"
+                            fi
+                            . $WORKSPACE/tools/buildsteps/android/configure-xbmc'''
+                            sh '. $WORKSPACE/tools/buildsteps/android/make-xbmc'
+                            sh '''export RUN_SIGNSTEP="$WORKSPACE/../../android-dev/signing/doreleasesign.sh"
+                                . $WORKSPACE/tools/buildsteps/android/package'''
+                            junit allowEmptyResults: true, testResults: 'gtestresults.xml'
+                            archiveArtifacts allowEmptyArchive: true, artifacts: 'gtestresults.xml'
+                            load 'checkBinaryAddons.groovy'
+                            echo 'SSH Publish'
+                        }
+                    }
+                },
                 AndroidArm64: {
                     node('android64') {
                         ansiColor('xterm') {
@@ -94,6 +117,69 @@ pipeline {
                             sh '. $WORKSPACE/tools/buildsteps/android-arm64-v8a/make-xbmc'
                             sh '''export RUN_SIGNSTEP="$WORKSPACE/../../android-dev/signing/doreleasesign.sh"
                                 . $WORKSPACE/tools/buildsteps/android-arm64-v8a/package'''
+                            junit allowEmptyResults: true, testResults: 'gtestresults.xml'
+                            archiveArtifacts allowEmptyArchive: true, artifacts: 'gtestresults.xml'
+                            load 'checkBinaryAddons.groovy'
+                            echo 'SSH Publish'
+                        }
+                    }
+                },
+                IOS: {
+                    node('xcode6') {
+                        ansiColor('xterm') {
+                            checkout scm
+                            sh '. $WORKSPACE/tools/buildsteps/ios/prepare-depends'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/configure-depends'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/make-depends'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/prepare-xbmc'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/configure-xbmc'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/make-xbmc'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/package'
+                            junit allowEmptyResults: true, testResults: 'gtestresults.xml'
+                            archiveArtifacts allowEmptyArchive: true, artifacts: 'gtestresults.xml'
+                            load 'checkBinaryAddons.groovy'
+                            echo 'SSH Publish'
+                        }
+                    }
+                },
+                IOSArm64: {
+                    node('xcode6') {
+                        ansiColor('xterm') {
+                            checkout scm
+                            sh '. $WORKSPACE/tools/buildsteps/ios/prepare-depends'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/configure-depends'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/make-depends'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/prepare-xbmc'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/configure-xbmc'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/make-xbmc'
+                            sh '. $WORKSPACE/tools/buildsteps/ios/package'
+                            junit allowEmptyResults: true, testResults: 'gtestresults.xml'
+                            archiveArtifacts allowEmptyArchive: true, artifacts: 'gtestresults.xml'
+                            load 'checkBinaryAddons.groovy'
+                            echo 'SSH Publish'
+                        }
+                    }
+                },
+                OSX64: {
+                    node('xcode6') {
+                        ansiColor('xterm') {
+                            checkout scm
+                            sh '. $WORKSPACE/tools/buildsteps/osx64/prepare-depends'
+                            sh '. $WORKSPACE/tools/buildsteps/osx64/configure-depends'
+                            sh '. $WORKSPACE/tools/buildsteps/osx64/make-depends'
+                            // will evaluate ${BUILD_BINARY_ADDONS} internally
+                            sh '. $WORKSPACE/tools/buildsteps/osx64/prepare-xbmc'
+                            sh '''if [ "''' + params.RUN_TESTS + '''" == "true" ]
+                                then
+                                export CONFIG_EXTRA=" --enable-gtest"
+                                fi
+                                . $WORKSPACE/tools/buildsteps/osx64/configure-xbmc'''
+                            sh '. $WORKSPACE/tools/buildsteps/osx64/make-xbmc'
+                            sh '. $WORKSPACE/tools/buildsteps/osx64/package'
+                            sh '''if [ "${RUN_TESTS}" == "true" ]
+                                then
+                                . $WORKSPACE/tools/buildsteps/osx64/run-tests
+                                fi'''
                             junit allowEmptyResults: true, testResults: 'gtestresults.xml'
                             archiveArtifacts allowEmptyArchive: true, artifacts: 'gtestresults.xml'
                             load 'checkBinaryAddons.groovy'
