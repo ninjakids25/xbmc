@@ -69,13 +69,10 @@
         MODULE ".log('-->HTTP Python WSGI Interpreter Initialized<--', " MODULE ".LOGNOTICE)\n" \
         ""
 
-#if defined(TARGET_ANDROID)
-#define RUNSCRIPT \
-  RUNSCRIPT_PREAMBLE RUNSCRIPT_SETUPTOOLS_HACK RUNSCRIPT_POSTSCRIPT
-#else
+
 #define RUNSCRIPT \
   RUNSCRIPT_PREAMBLE RUNSCRIPT_POSTSCRIPT
-#endif
+
 
 namespace PythonBindings {
   PyObject* PyInit_Module_xbmc(void);

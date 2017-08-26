@@ -64,17 +64,10 @@
         "print ('-->Python Interpreter Initialized<--')\n" \
         ""
 
-#if defined(TARGET_ANDROID)
-
-#define RUNSCRIPT_COMPLIANT \
-  RUNSCRIPT_PREAMBLE RUNSCRIPT_SETUPTOOLS_HACK RUNSCRIPT_POSTSCRIPT
-
-#else
 
 #define RUNSCRIPT_COMPLIANT \
   RUNSCRIPT_PREAMBLE RUNSCRIPT_POSTSCRIPT
 
-#endif
 
 namespace PythonBindings {
   PyObject *PyInit_Module_xbmcgui(void);
