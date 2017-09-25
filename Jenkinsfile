@@ -9,12 +9,6 @@ pipeline {
         choice(choices: 'Default\nRelease\nDebug',
             description: 'Default is decided by the in tree build scripts (see tools/buildsteps/defaultenv).',
             name: 'Configuration')
-        string(name: 'Revision',
-               defaultValue: 'master',
-               description: 'Revision (Branch/Tag/Commit)')
-        string(name: 'GITHUB_REPO',
-               defaultValue: 'xbmc',
-               description: 'The repository/fork to build from. (e.x. the name of the github user).')
         booleanParam(name: 'RUN_TESTS',
                      defaultValue: true,
                      description: 'Turn this on if you want to build and run the xbmc unit tests based on gtest.')
@@ -29,7 +23,7 @@ pipeline {
     stages {
         stage('Build and Test') {
             environment {
-                BUILD_DISPLAY_NAME = "${ENV.GITHUB_REPO}-${ENV.Revision}-${env.BRANCH_NAME[0..6]}"
+                BUILD_DISPLAY_NAME = "${env.BRANCH_NAME[0..6]}-${env.BUILD_NUMBER}"
             }
             steps {
                 parallel Windows32: {
