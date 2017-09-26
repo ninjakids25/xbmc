@@ -7,8 +7,7 @@ echo 'Checkpoint 2'
 
 if ( fileExists(pathesSuccess) ) {
     echo "GROOVY: binary addons succeeded marker exists!"
-    def summary = manager.createSummary("accept.png")
-    summary.appendText("<h1>The following binary addons were built successfully:</h1><ul>", false)
+    summary = manager.createSummary("accept.png").appendText("<h1>The following binary addons were built successfully:</h1><ul>", false)
     fileInputStream = readFile(pathesSuccess)
     fileInputStream.eachLine { line ->
         summary.appendText("<li><b>" + line + "</b></li>", false)
@@ -21,8 +20,7 @@ echo 'Checkpoint 3'
 if ( fileExists(pathesFailure) ) {
     echo "GROOVY: binary addons failed marker exists!"
     manager.addWarningBadge("Build of binary addons failed.")
-    def summary = manager.createSummary("warning.gif")
-    summary.appendText("<h1>Build of binary addons failed. This is treated as non-fatal. Following addons failed to build:</h1><ul>", false, false, false, "red")
+    summary = manager.createSummary("warning.gif").appendText("<h1>Build of binary addons failed. This is treated as non-fatal. Following addons failed to build:</h1><ul>", false, false, false, "red")
     fileInputStream = readFile(pathesFailure)
     fileInputStream.eachLine { line ->
         summary.appendText("<li><b>" + line + "</b></li>", false)
